@@ -9,18 +9,30 @@ import Field from '@/components/Field.vue'
 import Control from '@/components/Control.vue'
 import Divider from '@/components/Divider.vue'
 import JbButton from '@/components/JbButton.vue'
+import { useStore } from 'vuex'
 import JbButtons from '@/components/JbButtons.vue'
+import Axios from '@/api'
+import { useToast } from 'vue-toastification'
 
 const form = reactive({
-  login: 'john.doe',
-  pass: 'highly-secure-password-fYjUw-',
+  username: '',
+  password: '',
   remember: ['remember']
 })
 
+const toastMessage = useToast()
+
 const router = useRouter()
+const store = useStore()
 
 const submit = () => {
-  router.push('/dashboard')
+  Axios.post('/auth/login', form).then((response) => {
+    store.dispatch('login', response.data)
+    toastMessage.success(response.message)
+    router.push('/dashboard')
+  }).catch((error) => {
+    toastMessage.error(error.message)
+  })
 }
 </script>
 
@@ -40,7 +52,7 @@ const submit = () => {
         help="Please enter your login"
       >
         <control
-          v-model="form.login"
+          v-model="form.username"
           :icon="mdiAccount"
           name="login"
           autocomplete="username"
@@ -52,7 +64,7 @@ const submit = () => {
         help="Please enter your password"
       >
         <control
-          v-model="form.pass"
+          v-model="form.password"
           :icon="mdiAsterisk"
           type="password"
           name="password"

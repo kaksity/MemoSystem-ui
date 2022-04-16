@@ -15,9 +15,11 @@
     "axios": "^0.24.0",
     "chart.js": "^3.6.0",
     "core-js": "^3.6.5",
+    "nprogress": "^0.2.0",
     "numeral": "^2.0.6",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
+    "vue-toastification": "^2.0.0-rc.5",
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {

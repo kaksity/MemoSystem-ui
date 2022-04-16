@@ -3,8 +3,10 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import { darkModeKey, styleKey } from '@/config.js'
-
+import { darkModeKey } from '@/config.js'
+import Toast from 'vue-toastification'
+// Import the CSS or use your own!
+import 'vue-toastification/dist/index.css'
 import './css/main.css'
 
 /* Fetch sample data */
@@ -12,7 +14,7 @@ store.dispatch('fetch', 'clients')
 store.dispatch('fetch', 'history')
 
 /* App style */
-store.dispatch('setStyle', localStorage[styleKey] ?? 'basic')
+store.dispatch('setStyle', 'basic')
 
 /* Dark mode */
 if ((!localStorage[darkModeKey] && window.matchMedia('(prefers-color-scheme: dark)').matches) || localStorage[darkModeKey] === '1') {
@@ -28,7 +30,18 @@ router.beforeEach(to => {
   store.dispatch('asideLgToggle', false)
 })
 
-router.afterEach(to => {
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') {
+    store.dispatch('logout')
+    next()
+  } else if (to.meta.requiresAuth === true && store.getters.isUserLoggedIn === true) {
+    next()
+  } else {
+    next({ path: '/login' })
+  }
+})
+
+router.afterEach((to) => {
   /* Set document title from route meta */
   if (to.meta && to.meta.title) {
     document.title = `${to.meta.title} — ${defaultDocumentTitle}`
@@ -40,4 +53,4 @@ router.afterEach(to => {
   store.dispatch('fullScreenToggle', !!to.meta.fullScreen)
 })
 
-createApp(App).use(store).use(router).mount('#app')
+createApp(App).use(store).use(router).use(Toast).mount('#app')

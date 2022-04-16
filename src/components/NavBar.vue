@@ -7,14 +7,10 @@ import {
   mdiClose,
   mdiDotsVertical,
   mdiMenu,
-  mdiClockOutline,
-  mdiCloud,
-  mdiCrop,
   mdiAccount,
   mdiCogOutline,
   mdiEmail,
   mdiLogout,
-  mdiGithub,
   mdiThemeLightDark
 } from '@mdi/js'
 import NavBarItem from '@/components/NavBarItem.vue'
@@ -102,41 +98,24 @@ const menuOpenLg = () => {
       <div
         class="max-h-screen-menu overflow-y-auto lg:overflow-visible lg:flex lg:items-stretch lg:justify-end lg:ml-auto"
       >
-        <nav-bar-menu has-divider>
+        <nav-bar-item
+          has-divider
+          is-desktop-icon-only
+          @click.prevent="toggleLightDark"
+        >
           <nav-bar-item-label
-            :icon="mdiMenu"
-            label="Sample menu"
+            :icon="mdiThemeLightDark"
+            label="Light/Dark"
+            is-desktop-icon-only
           />
-
-          <template #dropdown>
-            <nav-bar-item>
-              <nav-bar-item-label
-                :icon="mdiClockOutline"
-                label="Item One"
-              />
-            </nav-bar-item>
-            <nav-bar-item>
-              <nav-bar-item-label
-                :icon="mdiCloud"
-                label="Item Two"
-              />
-            </nav-bar-item>
-            <divider nav-bar />
-            <nav-bar-item>
-              <nav-bar-item-label
-                :icon="mdiCrop"
-                label="Item Last"
-              />
-            </nav-bar-item>
-          </template>
-        </nav-bar-menu>
+        </nav-bar-item>
         <nav-bar-menu has-divider>
           <nav-bar-item-label :label="userName">
             <user-avatar class="w-6 h-6 mr-3 inline-flex" />
           </nav-bar-item-label>
 
           <template #dropdown>
-            <nav-bar-item to="/profile">
+            <nav-bar-item>
               <nav-bar-item-label
                 :icon="mdiAccount"
                 label="My Profile"
@@ -155,7 +134,7 @@ const menuOpenLg = () => {
               />
             </nav-bar-item>
             <divider nav-bar />
-            <nav-bar-item>
+            <nav-bar-item to="/login">
               <nav-bar-item-label
                 :icon="mdiLogout"
                 label="Log Out"
@@ -163,35 +142,6 @@ const menuOpenLg = () => {
             </nav-bar-item>
           </template>
         </nav-bar-menu>
-        <nav-bar-item
-          has-divider
-          is-desktop-icon-only
-          @click.prevent="toggleLightDark"
-        >
-          <nav-bar-item-label
-            :icon="mdiThemeLightDark"
-            label="Light/Dark"
-            is-desktop-icon-only
-          />
-        </nav-bar-item>
-        <nav-bar-item
-          href="https://github.com/justboil/admin-one-vue-tailwind"
-          has-divider
-          is-desktop-icon-only
-        >
-          <nav-bar-item-label
-            :icon="mdiGithub"
-            label="GitHub"
-            is-desktop-icon-only
-          />
-        </nav-bar-item>
-        <nav-bar-item is-desktop-icon-only>
-          <nav-bar-item-label
-            :icon="mdiLogout"
-            label="Log out"
-            is-desktop-icon-only
-          />
-        </nav-bar-item>
       </div>
     </div>
   </nav>

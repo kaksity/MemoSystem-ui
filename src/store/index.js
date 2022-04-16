@@ -28,6 +28,8 @@ export default createStore({
     userName: null,
     userEmail: null,
     userAvatar: null,
+    userLoginToken: null || localStorage.getItem('memo-system-token'),
+    userTokenExpires: null || localStorage.getItem('memo-system-expires'),
 
     /* fullScreen - fullscreen form layout (e.g. login page) */
     isFullScreen: true,
@@ -74,9 +76,48 @@ export default createStore({
       if (payload.avatar) {
         state.userAvatar = payload.avatar
       }
+      if (payload.token) {
+        state.userLoginToken = payload.token
+        state.userTokenExpires = payload.expires
+      }
+    },
+    logout (state) {
+      state.userName = null
+      state.userEmail = null
+      state.userAvatar = null
+      state.userLoginToken = null
+      state.userTokenExpires = null
+    }
+  },
+  getters: {
+    user (state) {
+      return {
+        userName: state.userName,
+        userEmail: state.userEmail,
+        userAvatar: state.userAvatar,
+        userLoginToken: state.userLoginToken,
+        userTokenExpires: state.userTokenExpires
+      }
+    },
+    isUserLoggedIn (state) {
+      if (state.userLoginToken === null || state.userTokenExpires === null) {
+        return false
+      }
+      return true
     }
   },
   actions: {
+    login ({ commit }, payload) {
+      // commit it to the localstorage
+      localStorage.setItem('memo-system-token', payload.token)
+      localStorage.setItem('memo-system-expires', payload.expires)
+      commit('user', { token: payload.token, expires: payload.expires })
+    },
+    logout ({ commit }) {
+      localStorage.removeItem('memo-system-token')
+      localStorage.removeItem('memo-system-expires')
+      commit('logout')
+    },
     setStyle ({ commit, dispatch }, payload) {
       const style = styles[payload] ?? styles.basic
 
