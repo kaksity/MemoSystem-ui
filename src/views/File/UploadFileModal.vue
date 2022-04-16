@@ -20,19 +20,16 @@ const form = reactive({
   file: null
 })
 
-
 const toastMessage = useToast()
 
-function onFileChange(e) {
+function onFileChange (e) {
   form.file = e.target.files || e.dataTransfer.files
 }
 
 async function uploadFile () {
   try {
-    
     const uploadForm = new FormData()
-    
-    uploadForm.append('fileId',form.fileId)
+    uploadForm.append('fileId', form.fileId)
     uploadForm.append('documentName', form.documentName)
     uploadForm.append('file', form.file[0])
 

@@ -32,6 +32,33 @@ const routes = [
   },
   {
     meta: {
+      title: 'Create Memo',
+      requiresAuth: true
+    },
+    path: '/memo/create',
+    name: 'memo-create',
+    component: () => import('@/views/Memo/CreateMemo.vue')
+  },
+  {
+    meta: {
+      title: 'Create User',
+      requiresAuth: true
+    },
+    path: '/user/create',
+    name: 'user-create',
+    component: () => import('@/views/User/CreateUser.vue')
+  },
+  {
+    meta: {
+      title: 'View Users',
+      requiresAuth: true
+    },
+    path: '/user/view',
+    name: 'user-view',
+    component: () => import('@/views/User/Index.vue')
+  },
+  {
+    meta: {
       title: 'Login',
       fullScreen: true
     },

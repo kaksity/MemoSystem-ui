@@ -38,7 +38,7 @@ httpClient.interceptors.response.use(
   }
 )
 
-// set max timeout for API calls
-httpClient.defaults.timeout = 20000
+// // set max timeout for API calls
+// httpClient.defaults.timeout = 20000
 
 export default httpClient
