@@ -1,6 +1,6 @@
 <script setup>
-import { reactive } from 'vue'
-import { mdiBallot, mdiAccount, mdiMail } from '@mdi/js'
+import { onMounted, reactive, ref } from 'vue'
+import { mdiBallot } from '@mdi/js'
 import MainSection from '@/components/MainSection.vue'
 import CardComponent from '@/components/CardComponent.vue'
 import Field from '@/components/Field.vue'
@@ -8,21 +8,48 @@ import Control from '@/components/Control.vue'
 import Divider from '@/components/Divider.vue'
 import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
-const selectOptions = [
-  { id: 1, label: 'Business development' },
-  { id: 2, label: 'Marketing' },
-  { id: 3, label: 'Sales' }
-]
+import Api from '@/api'
+import { useToast } from 'vue-toastification'
+
+const selectOptions = ref([])
+
+const toastMessage = useToast()
+
 const form = reactive({
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  phone: '',
-  department: selectOptions[0],
-  subject: '',
-  question: ''
+  fullName: '',
+  username: '',
+  password: '',
+  role: ''
 })
+
+function clearInputs () {
+  form.fullName = ''
+  form.username = ''
+  form.password = ''
+  form.role = ''
+}
+
+async function getRoles () {
+  try {
+    const response = await Api.get('/roles')
+    selectOptions.value = response.data
+  } catch (error) {
+    toastMessage.error(error.message)
+  }
+}
+
+onMounted(async () => {
+  await getRoles()
+})
+
 const submit = () => {
-  //
+  form.role = form.role.id
+  Api.post('/users', form).then((response) => {
+    toastMessage.success(response.message)
+    clearInputs()
+  }).catch((error) => {
+    toastMessage.error(error.message)
+  })
 }
 </script>
 <template>
@@ -34,31 +61,36 @@ const submit = () => {
         form
         @submit.prevent="submit"
         >
-        <field label="Grouped with icons">
+        <field
+            label="Full Name"
+        >
             <control
-            v-model="form.name"
-            :icon="mdiAccount"
+            v-model="form.fullName"
             />
+        </field>
+        <field label="Role">
             <control
-            v-model="form.email"
-            type="email"
-            :icon="mdiMail"
+            v-model="form.role"
+            :options="selectOptions"
             />
         </field>
         <field
-            label="With help line"
-            help="Do not enter the leading zero"
+            label="Username"
         >
             <control
-            v-model="form.phone"
-            type="tel"
-            placeholder="Your phone number"
+              v-model="form.username"
+              name="username"
+              autocomplete="username"
             />
         </field>
-        <field label="Dropdown">
+        <field
+            label="Password"
+        >
             <control
-            v-model="form.department"
-            :options="selectOptions"
+              v-model="form.password"
+              type="password"
+              name="password"
+              autocomplete="current-password"
             />
         </field>
         <divider />
