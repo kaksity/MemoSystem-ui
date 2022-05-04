@@ -8,44 +8,47 @@ import Api from '@/api'
 import ModalBox from '@/components/ModalBox.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import JbButton from '@/components/JbButton.vue'
-import { mdiTrashCan } from '@mdi/js'
+import { mdiTrashCan, mdiEye, mdiPencil, mdiMessage, mdiAttachment } from '@mdi/js'
 import { useToast } from 'vue-toastification'
-
+import { useRouter } from 'vue-router'
 const tableHead = [
-  'Full Name',
-  'Username',
-  'Role Name',
+  'Title',
+  'Date',
   'Action'
 ]
 
-const users = ref([])
+const router = useRouter()
+
+const memos = ref([])
 
 const toastMessage = useToast()
 
 const isModalDangerActive = ref(false)
 
-const userId = ref('')
+const memoId = ref('')
 
-async function getUsers () {
+async function getSelfMemos () {
   try {
-    const response = await Api.get('/users')
-    users.value = response.data
+    const response = await Api.get('/memos/self')
+    memos.value = response.data.memos
   } catch (error) {
     toastMessage.error(error.message)
   }
 }
 
-function deleteUser (id) {
-  Api.delete(`/users/${id}`).then((response) => {
+function deleteMemo (id) {
+  Api.delete(`/memos/${id}`).then((response) => {
     toastMessage.success(response.message)
-    getUsers()
+    getSelfMemos()
   }).catch((error) => {
     toastMessage.error(error.message)
   })
 }
-
+// function viewMemoDetails (id) {
+//   router.push(`/memo/${id}/view`)
+// }
 onMounted(async () => {
-  await getUsers()
+  await getSelfMemos()
 })
 </script>
 
@@ -54,24 +57,21 @@ onMounted(async () => {
     <main-section>
       <card-component
         class="mb-6"
-        title="List of Users"
+        title="List of Created Memos"
         has-table
       >
         <data-table
           :theads="tableHead"
         >
           <tr
-            v-for="user in users"
-            :key="user.id"
+            v-for="memo in memos"
+            :key="memo.id"
           >
-            <td data-label="Full Name">
-              {{ user.fullName }}
+            <td data-label="Title">
+              {{ memo.title }}
             </td>
-            <td data-label="Username">
-              {{ user.username }}
-            </td>
-            <td data-label="Role">
-              {{ user.roleName }}
+            <td data-label="Date">
+              {{ memo.date }}
             </td>
             <td class="actions-cell">
               <jb-buttons
@@ -79,10 +79,34 @@ onMounted(async () => {
                 no-wrap
               >
                 <jb-button
+                  color="info"
+                  :icon="mdiEye"
+                  small
+                  @click="router.push(`/memo/${memo.id}/view`)"
+                />
+                <jb-button
+                  color="info"
+                  :icon="mdiPencil"
+                  small
+                  @click="router.push(`/memo/${memo.id}/edit`)"
+                />
+                <jb-button
+                  color="info"
+                  :icon="mdiAttachment"
+                  small
+                  @click="router.push(`/memo/${memo.id}/attachments/self`)"
+                />
+                <jb-button
+                  color="info"
+                  :icon="mdiMessage"
+                  small
+                  @click="router.push(`/memo/${memo.id}/comments`)"
+                />
+                <jb-button
                   color="danger"
                   :icon="mdiTrashCan"
                   small
-                  @click="isModalDangerActive = true, userId = user.id"
+                  @click="isModalDangerActive = true, memoId = memo.id"
                 />
               </jb-buttons>
             </td>
@@ -95,7 +119,7 @@ onMounted(async () => {
       large-title="Please confirm"
       button="danger"
       has-cancel
-      @confirm="deleteUser(userId)"
+      @confirm="deleteMemo(memoId)"
     >
       <p>Do you wish to delete this record?</p>
     </modal-box>

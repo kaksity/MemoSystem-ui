@@ -8,8 +8,6 @@ import {
   mdiDotsVertical,
   mdiMenu,
   mdiAccount,
-  mdiCogOutline,
-  mdiEmail,
   mdiLogout,
   mdiThemeLightDark
 } from '@mdi/js'
@@ -17,7 +15,6 @@ import NavBarItem from '@/components/NavBarItem.vue'
 import NavBarItemLabel from '@/components/NavBarItemLabel.vue'
 import NavBarMenu from '@/components/NavBarMenu.vue'
 import Divider from '@/components/Divider.vue'
-import UserAvatar from '@/components/UserAvatar.vue'
 import Icon from '@/components/Icon.vue'
 import NavBarSearch from '@/components/NavBarSearch.vue'
 
@@ -110,27 +107,13 @@ const menuOpenLg = () => {
           />
         </nav-bar-item>
         <nav-bar-menu has-divider>
-          <nav-bar-item-label :label="userName">
-            <user-avatar class="w-6 h-6 mr-3 inline-flex" />
-          </nav-bar-item-label>
+          <nav-bar-item-label :label="userName" />
 
           <template #dropdown>
             <nav-bar-item>
               <nav-bar-item-label
                 :icon="mdiAccount"
                 label="My Profile"
-              />
-            </nav-bar-item>
-            <nav-bar-item>
-              <nav-bar-item-label
-                :icon="mdiCogOutline"
-                label="Settings"
-              />
-            </nav-bar-item>
-            <nav-bar-item>
-              <nav-bar-item-label
-                :icon="mdiEmail"
-                label="Messages"
               />
             </nav-bar-item>
             <divider nav-bar />

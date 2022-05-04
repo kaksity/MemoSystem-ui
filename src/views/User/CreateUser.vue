@@ -43,6 +43,21 @@ onMounted(async () => {
 })
 
 const submit = () => {
+  if (form.fullName === '' || form.fullName.length < 8) {
+    toastMessage.error('Full Name is required and must be 5 or more characters')
+    return
+  }
+
+  if (form.username === '' || form.username.length < 5) {
+    toastMessage.error('Username is required and must be 5 or more characters')
+    return
+  }
+
+  if (form.password === '' || form.password.length < 8) {
+    toastMessage.error('Password is required and must 8 or more characters')
+    return
+  }
+
   form.role = form.role.id
   Api.post('/users', form).then((response) => {
     toastMessage.success(response.message)
@@ -55,53 +70,53 @@ const submit = () => {
 <template>
   <div>
     <main-section>
-        <card-component
+      <card-component
         title="Forms"
         :icon="mdiBallot"
         form
         @submit.prevent="submit"
-        >
+      >
         <field
-            label="Full Name"
+          label="Full Name"
         >
-            <control
+          <control
             v-model="form.fullName"
-            />
+          />
         </field>
         <field label="Role">
-            <control
+          <control
             v-model="form.role"
             :options="selectOptions"
-            />
+          />
         </field>
         <field
-            label="Username"
+          label="Username"
         >
-            <control
-              v-model="form.username"
-              name="username"
-              autocomplete="username"
-            />
+          <control
+            v-model="form.username"
+            name="username"
+            autocomplete="username"
+          />
         </field>
         <field
-            label="Password"
+          label="Password"
         >
-            <control
-              v-model="form.password"
-              type="password"
-              name="password"
-              autocomplete="current-password"
-            />
+          <control
+            v-model="form.password"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+          />
         </field>
         <divider />
         <jb-buttons>
-            <jb-button
+          <jb-button
             type="submit"
             color="info"
             label="Submit"
-            />
+          />
         </jb-buttons>
-        </card-component>
+      </card-component>
     </main-section>
   </div>
 </template>

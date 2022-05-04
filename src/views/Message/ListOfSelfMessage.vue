@@ -8,44 +8,45 @@ import Api from '@/api'
 import ModalBox from '@/components/ModalBox.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import JbButton from '@/components/JbButton.vue'
-import { mdiTrashCan } from '@mdi/js'
+import { mdiTrashCan, mdiEye } from '@mdi/js'
 import { useToast } from 'vue-toastification'
-
+import { useRouter } from 'vue-router'
 const tableHead = [
-  'Full Name',
-  'Username',
-  'Role Name',
+  'Title',
+  'Date',
   'Action'
 ]
 
-const users = ref([])
+const router = useRouter()
+
+const messages = ref([])
 
 const toastMessage = useToast()
 
 const isModalDangerActive = ref(false)
 
-const userId = ref('')
+const messageId = ref('')
 
-async function getUsers () {
+async function getSelfMessages () {
   try {
-    const response = await Api.get('/users')
-    users.value = response.data
+    const response = await Api.get('/messages/self')
+    messages.value = response.data.messages
   } catch (error) {
     toastMessage.error(error.message)
   }
 }
 
-function deleteUser (id) {
-  Api.delete(`/users/${id}`).then((response) => {
+function deleteMessage (id) {
+  Api.delete(`/messages/${id}`).then((response) => {
     toastMessage.success(response.message)
-    getUsers()
+    getSelfMessages()
   }).catch((error) => {
     toastMessage.error(error.message)
   })
 }
 
 onMounted(async () => {
-  await getUsers()
+  await getSelfMessages()
 })
 </script>
 
@@ -54,24 +55,21 @@ onMounted(async () => {
     <main-section>
       <card-component
         class="mb-6"
-        title="List of Users"
+        title="List of Created Messages"
         has-table
       >
         <data-table
           :theads="tableHead"
         >
           <tr
-            v-for="user in users"
-            :key="user.id"
+            v-for="message in messages"
+            :key="message.id"
           >
-            <td data-label="Full Name">
-              {{ user.fullName }}
+            <td data-label="Title">
+              {{ message.title }}
             </td>
-            <td data-label="Username">
-              {{ user.username }}
-            </td>
-            <td data-label="Role">
-              {{ user.roleName }}
+            <td data-label="Date">
+              {{ message.date }}
             </td>
             <td class="actions-cell">
               <jb-buttons
@@ -79,10 +77,16 @@ onMounted(async () => {
                 no-wrap
               >
                 <jb-button
+                  color="info"
+                  :icon="mdiEye"
+                  small
+                  @click="router.push(`/message/${message.id}/view`)"
+                />
+                <jb-button
                   color="danger"
                   :icon="mdiTrashCan"
                   small
-                  @click="isModalDangerActive = true, userId = user.id"
+                  @click="isModalDangerActive = true, messageId = message.id"
                 />
               </jb-buttons>
             </td>
@@ -95,7 +99,7 @@ onMounted(async () => {
       large-title="Please confirm"
       button="danger"
       has-cancel
-      @confirm="deleteUser(userId)"
+      @confirm="deleteMessage(messageId)"
     >
       <p>Do you wish to delete this record?</p>
     </modal-box>

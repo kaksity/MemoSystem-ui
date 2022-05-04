@@ -21,17 +21,39 @@ const form = reactive({
 })
 
 const toastMessage = useToast()
-
 const router = useRouter()
 const store = useStore()
+const error = reactive({
+  username: {
+    message: ''
+  },
+  password: {
+    message: ''
+  }
+})
 
+function clearError () {
+  error.username.message = ''
+  error.password.message = ''
+}
 const submit = () => {
+  clearError()
+  if (form.username === '' || form.password === '') {
+    error.username.message = 'Username is required'
+    error.password.message = 'Password is required'
+    return
+  } else if (form.password.length < 8) {
+    toastMessage.error('Invalid login credentials')
+    return
+  }
   Axios.post('/auth/login', form).then((response) => {
+    console.log(response.data)
     store.dispatch('login', response.data)
     toastMessage.success(response.message)
     router.push('/dashboard')
   }).catch((error) => {
     toastMessage.error(error.message)
+  }).finally(() => {
   })
 }
 </script>
@@ -49,7 +71,7 @@ const submit = () => {
     >
       <field
         label="Login"
-        help="Please enter your login"
+        :help="error.username.message"
       >
         <control
           v-model="form.username"
@@ -61,7 +83,7 @@ const submit = () => {
 
       <field
         label="Password"
-        help="Please enter your password"
+        :help="error.password.message"
       >
         <control
           v-model="form.password"

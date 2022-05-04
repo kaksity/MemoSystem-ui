@@ -1,8 +1,10 @@
 import axios from 'axios'
 import router from '../router'
-import Nprogress from 'nprogress'
+import { useLoading } from 'vue3-loading-overlay'
+import 'vue3-loading-overlay/dist/vue3-loading-overlay.css'
 
 const baseURL = 'http://localhost:20000/api/v1'
+const loader = useLoading()
 
 const httpClient = axios.create({
   baseURL,
@@ -14,12 +16,11 @@ const httpClient = axios.create({
 
 httpClient.interceptors.request.use(
   async (config) => {
-    Nprogress.start()
+    loader.show()
     const token = localStorage.getItem('memo-system-token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    // console.log(config.url)
     return config
   },
   (error) => Promise.reject(error)
@@ -27,7 +28,7 @@ httpClient.interceptors.request.use(
 
 httpClient.interceptors.response.use(
   async (response) => {
-    Nprogress.done()
+    loader.hide()
     return response.data
   },
   (error) => {

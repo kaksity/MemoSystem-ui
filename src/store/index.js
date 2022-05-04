@@ -25,9 +25,10 @@ export default createStore({
     overlayStyle: '',
 
     /* User */
-    userName: null,
+    userName: null || localStorage.getItem('memo-system-fullname'),
     userEmail: null,
     userAvatar: null,
+    userRole: null || localStorage.getItem('memo-system-role'),
     userLoginToken: null || localStorage.getItem('memo-system-token'),
     userTokenExpires: null || localStorage.getItem('memo-system-expires'),
 
@@ -70,6 +71,9 @@ export default createStore({
       if (payload.name) {
         state.userName = payload.name
       }
+      if (payload.role) {
+        state.userRole = payload.role
+      }
       if (payload.email) {
         state.userEmail = payload.email
       }
@@ -83,6 +87,7 @@ export default createStore({
     },
     logout (state) {
       state.userName = null
+      state.userRole = null
       state.userEmail = null
       state.userAvatar = null
       state.userLoginToken = null
@@ -104,6 +109,12 @@ export default createStore({
         return false
       }
       return true
+    },
+    isAdmin (state) {
+      if (state.userRole !== 'admin') {
+        return false
+      }
+      return true
     }
   },
   actions: {
@@ -111,11 +122,15 @@ export default createStore({
       // commit it to the localstorage
       localStorage.setItem('memo-system-token', payload.token)
       localStorage.setItem('memo-system-expires', payload.expires)
-      commit('user', { token: payload.token, expires: payload.expires })
+      localStorage.setItem('memo-system-fullname', payload.user.fullName)
+      localStorage.setItem('memo-system-role', payload.user.roleCode)
+      commit('user', { token: payload.token, expires: payload.expires, name: payload.user.fullName, role: payload.user.roleCode })
     },
     logout ({ commit }) {
       localStorage.removeItem('memo-system-token')
       localStorage.removeItem('memo-system-expires')
+      localStorage.removeItem('memo-system-fullname')
+      localStorage.removeItem('memo-system-role')
       commit('logout')
     },
     setStyle ({ commit, dispatch }, payload) {

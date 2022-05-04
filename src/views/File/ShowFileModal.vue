@@ -7,7 +7,7 @@ defineProps({
 
 </script>
 <template>
-<modal-box
+  <modal-box
     v-model="isViewModalActive"
     title="File Details"
   >

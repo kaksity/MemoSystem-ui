@@ -1,6 +1,10 @@
 import {
   mdiDesktopMac,
-  mdiViewList
+  mdiViewList,
+  mdiPlus,
+  mdiEye,
+  mdiAccount,
+  mdiEmail
 } from '@mdi/js'
 
 export default [
@@ -15,9 +19,20 @@ export default [
   'Administration',
   [
     {
-      to: '/files',
       icon: mdiDesktopMac,
-      label: 'Files'
+      label: 'Files',
+      menu: [
+        {
+          label: 'Create',
+          to: '/file/create',
+          icon: mdiPlus
+        },
+        {
+          label: 'View',
+          to: '/file/view',
+          icon: mdiEye
+        }
+      ]
     },
     {
       label: 'Memos',
@@ -26,26 +41,57 @@ export default [
       menu: [
         {
           label: 'Create',
-          to: '/memo/create'
+          to: '/memo/create',
+          icon: mdiPlus
         },
         {
-          label: 'View Incomming',
-          to: 'memo/view/incomming'
+          label: 'View (Self)',
+          to: '/memo/view/self',
+          icon: mdiEye
+        },
+        {
+          label: 'View (Mentioned)',
+          to: '/memo/view/mentioned',
+          icon: mdiEye
+        }
+      ]
+    },
+    {
+      label: 'Messages',
+      subLabel: 'Submenus Example',
+      icon: mdiEmail,
+      menu: [
+        {
+          label: 'Create',
+          to: '/message/create',
+          icon: mdiPlus
+        },
+        {
+          label: 'View (Self)',
+          to: '/message/view/self',
+          icon: mdiEye
+        },
+        {
+          label: 'View (Mentioned)',
+          to: '/message/view/mentioned',
+          icon: mdiEye
         }
       ]
     },
     {
       label: 'Users',
       subLabel: 'Users Management',
-      icon: mdiViewList,
+      icon: mdiAccount,
       menu: [
         {
           label: 'Create',
-          to: '/user/create'
+          to: '/user/create',
+          icon: mdiPlus
         },
         {
-          label: 'View Incomming',
-          to: '/user/view'
+          label: 'View',
+          to: '/user/view',
+          icon: mdiEye
         }
       ]
     }

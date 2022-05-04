@@ -10,12 +10,16 @@ import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
-
-const receipients = ref([])
-const toastMessage = useToast()
+import { useRoute } from 'vue-router'
 
 // const receipients = ref([])
+const routes = useRoute()
+const receipients = ref([])
 const editor = ref(null)
+const toastMessage = useToast()
+const memo = ref({})
+
+const memoId = ref(routes.params.memoId)
 
 const selectedReceipients = ref([])
 const receipientSelectBox = ref({})
@@ -26,17 +30,47 @@ const form = reactive({
   date: new Date().toString()
 })
 
+async function getMemoReceipients (memoId) {
+  try {
+    const response = await Api.get(`/memos/${memoId}/receipients`)
+    selectedReceipients.value = response.data.receipients
+    selectedReceipients.value = selectedReceipients.value.map(element => {
+      return {
+        receipient: element.user.id,
+        name: element.user.fullName
+      }
+    })
+  } catch (error) {
+    toastMessage.error(error.message)
+  }
+}
+async function getMemoDetails (memoId) {
+  try {
+    const response = await Api.get(`/memos/${memoId}`)
+    memo.value = response.data.memo
+    form.title = memo.value.title
+    form.date = memo.value.date
+    form.content = memo.value.content
+    editor.value.setHTML(form.content)
+  } catch (error) {
+    toastMessage.error(error.message)
+  }
+}
+
 function clearInputs () {
   selectedReceipients.value = []
   form.content = ''
   form.date = new Date().toString()
   form.title = ''
-  editor.value.setHTML('')
+  editor.value.setHTML(form.content)
 }
 
 onMounted(async () => {
   await getUsers()
+  await getMemoDetails(memoId.value)
+  await getMemoReceipients(memoId.value)
 })
+
 function setReceipient () {
   const isExist = selectedReceipients.value.find(t => t.receipient === receipientSelectBox.value.id)
   if (!isExist) {
@@ -69,6 +103,7 @@ async function getUsers () {
     toastMessage.error(error.message)
   }
 }
+
 const submit = async () => {
   try {
     if (selectedReceipients.value.length === 0) {
@@ -82,7 +117,7 @@ const submit = async () => {
       return
     }
     form.receipients = selectedReceipients
-    const response = await Api.post('/memos', form)
+    const response = await Api.put(`/memos/${memoId.value}`, form)
     toastMessage.success(response.message)
     clearInputs()
   } catch (error) {
@@ -94,7 +129,7 @@ const submit = async () => {
   <div>
     <main-section>
       <card-component
-        title="Create Memo"
+        title="Edit Memo"
         :icon="mdiBallot"
         form
         @submit.prevent="submit"

@@ -17,18 +17,36 @@ const routes = [
       title: 'Files',
       requiresAuth: true
     },
-    path: '/files',
-    name: 'files',
-    component: () => import(/* webpackChunkName: "forms" */ '@/views/File/Index.vue')
+    path: '/file/view',
+    name: 'file-view',
+    component: () => import(/* webpackChunkName: "forms" */ '@/views/File/ListFile.vue')
   },
   {
     meta: {
       title: 'Upload Files',
       requiresAuth: true
     },
-    path: '/files/:fileId/uploads',
-    name: 'file-uploads',
+    path: '/file/:fileId/upload',
+    name: 'file-upload',
     component: () => import(/* webpackChunkName: "forms" */ '@/views/File/UploadFile.vue')
+  },
+  {
+    meta: {
+      title: 'View Files',
+      requiresAuth: true
+    },
+    path: '/file/:fileId/view',
+    name: 'file-view-details',
+    component: () => import(/* webpackChunkName: "forms" */ '@/views/File/FileDetails.vue')
+  },
+  {
+    meta: {
+      title: 'Create File',
+      requiresAuth: true
+    },
+    path: '/file/create',
+    name: 'file-create',
+    component: () => import('@/views/File/CreateFile.vue')
   },
   {
     meta: {
@@ -41,8 +59,108 @@ const routes = [
   },
   {
     meta: {
-      title: 'Create User',
+      title: 'View Self Memo',
       requiresAuth: true
+    },
+    path: '/memo/view/self',
+    name: 'memo-view-self',
+    component: () => import('@/views/Memo/ListOfSelfMemo.vue')
+  },
+  {
+    meta: {
+      title: 'View Mentioned Memo',
+      requiresAuth: true
+    },
+    path: '/memo/view/mentioned',
+    name: 'memo-view-mentioned',
+    component: () => import('@/views/Memo/ListOfMentionedMemo.vue')
+  },
+  {
+    meta: {
+      title: 'View Memo Details',
+      requiresAuth: true
+    },
+    path: '/memo/:memoId/view',
+    name: 'memo-view-details',
+    component: () => import('@/views/Memo/MemoDetails.vue')
+  },
+  {
+    meta: {
+      title: 'View Memo Attachments(Self)',
+      requiresAuth: true
+    },
+    path: '/memo/:memoId/attachments/self',
+    name: 'memo-attachment-self',
+    component: () => import('@/views/Memo/SelfMemoAttachments.vue')
+  },
+  {
+    meta: {
+      title: 'View Memo Attachments(Mentioned)',
+      requiresAuth: true
+    },
+    path: '/memo/:memoId/attachments/mentioned',
+    name: 'memo-attachment-mentioned',
+    component: () => import('@/views/Memo/MentionedMemoAttachments.vue')
+  },
+  {
+    meta: {
+      title: 'View Memo Comments',
+      requiresAuth: true
+    },
+    path: '/memo/:memoId/comments',
+    name: 'memo-view-comments',
+    component: () => import('@/views/Memo/MemoComments.vue')
+  },
+  {
+    meta: {
+      title: 'Edit Memo Details',
+      requiresAuth: true
+    },
+    path: '/memo/:memoId/edit',
+    name: 'memo-view-edit',
+    component: () => import('@/views/Memo/EditMemo.vue')
+  },
+  {
+    meta: {
+      title: 'Create Message',
+      requiresAuth: true
+    },
+    path: '/message/create',
+    name: 'message-create',
+    component: () => import('@/views/Message/CreateMessage.vue')
+  },
+  {
+    meta: {
+      title: 'View Self Messages',
+      requiresAuth: true
+    },
+    path: '/message/view/self',
+    name: 'message-view-self',
+    component: () => import('@/views/Message/ListOfSelfMessage.vue')
+  },
+  {
+    meta: {
+      title: 'View Message Details',
+      requiresAuth: true
+    },
+    path: '/message/:messageId/view',
+    name: 'message-view-details',
+    component: () => import('@/views/Message/MessageDetails.vue')
+  },
+  {
+    meta: {
+      title: 'View Mentioned Messages',
+      requiresAuth: true
+    },
+    path: '/message/view/mentioned',
+    name: 'message-view-mentioned',
+    component: () => import('@/views/Message/ListOfMentionedMessage.vue')
+  },
+  {
+    meta: {
+      title: 'Create User',
+      requiresAuth: true,
+      mustBeAdmin: true
     },
     path: '/user/create',
     name: 'user-create',
@@ -51,7 +169,8 @@ const routes = [
   {
     meta: {
       title: 'View Users',
-      requiresAuth: true
+      requiresAuth: true,
+      mustBeAdmin: true
     },
     path: '/user/view',
     name: 'user-view',

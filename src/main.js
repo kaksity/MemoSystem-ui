@@ -8,6 +8,10 @@ import Toast from 'vue-toastification'
 // Import the CSS or use your own!
 import 'vue-toastification/dist/index.css'
 import './css/main.css'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import Datepicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 /* Fetch sample data */
 store.dispatch('fetch', 'clients')
@@ -22,7 +26,7 @@ if ((!localStorage[darkModeKey] && window.matchMedia('(prefers-color-scheme: dar
 }
 
 /* Default title tag */
-const defaultDocumentTitle = 'Admin One Vue 3 Tailwind'
+const defaultDocumentTitle = 'Memo System'
 
 /* Collapse mobile aside menu on route change */
 router.beforeEach(to => {
@@ -35,6 +39,9 @@ router.beforeEach((to, from, next) => {
     store.dispatch('logout')
     next()
   } else if (to.meta.requiresAuth === true && store.getters.isUserLoggedIn === true) {
+    if (to.meta.mustBeAdmin === true && store.getters.isAdmin === false) {
+      next({ path: '/dashboard' })
+    }
     next()
   } else {
     next({ path: '/login' })
@@ -53,4 +60,10 @@ router.afterEach((to) => {
   store.dispatch('fullScreenToggle', !!to.meta.fullScreen)
 })
 
-createApp(App).use(store).use(router).use(Toast).mount('#app')
+createApp(App)
+  .use(store)
+  .use(router)
+  .use(Toast)
+  .component('QuillEditor', QuillEditor)
+  .component('Datepicker', Datepicker)
+  .mount('#app')

@@ -12,6 +12,7 @@ import Api from '@/api'
 import { useToast } from 'vue-toastification'
 
 const receipients = ref([])
+
 const toastMessage = useToast()
 
 // const receipients = ref([])
@@ -21,15 +22,13 @@ const selectedReceipients = ref([])
 const receipientSelectBox = ref({})
 const form = reactive({
   receipients: null,
-  content: '',
-  title: '',
-  date: new Date().toString()
+  message: '',
+  title: ''
 })
 
 function clearInputs () {
   selectedReceipients.value = []
-  form.content = ''
-  form.date = new Date().toString()
+  form.message = ''
   form.title = ''
   editor.value.setHTML('')
 }
@@ -55,7 +54,6 @@ function removeSelectedReciepients (id) {
   })
   selectedReceipients.value = newSelectedReceipients
 }
-
 async function getUsers () {
   try {
     const response = await Api.get('/users')
@@ -69,20 +67,21 @@ async function getUsers () {
     toastMessage.error(error.message)
   }
 }
+
 const submit = async () => {
   try {
     if (selectedReceipients.value.length === 0) {
       toastMessage.error('You must select atleast 1 receipient')
       return
     } else if (form.title === '') {
-      toastMessage.error('Memo Title is required')
+      toastMessage.error('Message Title is required')
       return
-    } else if (form.content === '') {
-      toastMessage.error('Memo Content is required')
+    } else if (form.message === '') {
+      toastMessage.error('Message Content is required')
       return
     }
     form.receipients = selectedReceipients
-    const response = await Api.post('/memos', form)
+    const response = await Api.post('/messages', form)
     toastMessage.success(response.message)
     clearInputs()
   } catch (error) {
@@ -94,7 +93,7 @@ const submit = async () => {
   <div>
     <main-section>
       <card-component
-        title="Create Memo"
+        title="Create Message"
         :icon="mdiBallot"
         form
         @submit.prevent="submit"
@@ -122,24 +121,16 @@ const submit = async () => {
           </span>
         </div>
         <divider />
-        <field label="Memo Title">
+        <field label="Message Title">
           <control
             v-model="form.title"
           />
         </field>
         <divider />
-        <field label="Date">
-          <datepicker
-            v-model="form.date"
-            auto-apply
-            alt-position
-          />
-        </field>
-        <divider />
-        <field label="Memo Content">
+        <field label="Message Content">
           <QuillEditor
             ref="editor"
-            v-model:content="form.content"
+            v-model:content="form.message"
             theme="snow"
             content-type="html"
             toolbar="full"
