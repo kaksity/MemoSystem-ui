@@ -14,30 +14,30 @@ import { useToast } from 'vue-toastification'
 const toastMessage = useToast()
 
 const form = reactive({
-  fileName: '',
-  fileCode: '',
-  fileDescription: ''
+  article: '',
+  quantity: '',
+  code: ''
 })
 
 function clearInputs () {
-  form.fileName = ''
-  form.fileCode = ''
-  form.fileDescription = ''
+  form.article = ''
+  form.quantity = ''
+  form.code = ''
 }
 
 async function submit () {
   try {
-    if (form.fileName === '') {
-      toastMessage.error('File Name is required')
+    if (form.article === '') {
+      toastMessage.error('Inventory Article is required')
       return
-    } else if (form.fileCode === '') {
-      toastMessage.error('File Number is required')
+    } else if (form.code === '') {
+      toastMessage.error('Inventory Code is required')
       return
-    } else if (form.fileDescription === '') {
-      toastMessage.error('File Description is required')
+    } else if (form.quantity === '') {
+      toastMessage.error('Inventory Quantity is required')
       return
     }
-    const response = await Api.post('/files', form)
+    const response = await Api.post('/inventories', form)
     toastMessage.success(response.message)
     clearInputs()
   } catch (error) {
@@ -49,30 +49,28 @@ async function submit () {
   <div>
     <main-section>
       <card-component
-        title="Create File"
+        title="Create Inventory"
         :icon="mdiBallot"
         form
         @submit.prevent="submit"
       >
-        <field label="File Name">
+        <field label="Inventory Article">
           <control
-            v-model="form.fileName"
+            v-model="form.article"
           />
         </field>
         <divider />
-        <field label="File Number">
+        <field label="Inventory Code">
           <control
-            v-model="form.fileCode"
+            v-model="form.code"
           />
         </field>
         <divider />
         <field
-          label="File Description"
+          label="Inventory Quantity"
         >
           <control
-            v-model="form.fileDescription"
-            row="3"
-            type="textarea"
+            v-model="form.quantity"
           />
         </field>
         <divider />

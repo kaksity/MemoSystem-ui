@@ -50,6 +50,33 @@ const routes = [
   },
   {
     meta: {
+      title: 'Create Inventory',
+      requiresAuth: true
+    },
+    path: '/inventory/create',
+    name: 'inventory-create',
+    component: () => import('@/views/Inventory/CreateInventory.vue')
+  },
+  {
+    meta: {
+      title: 'View Inventory',
+      requiresAuth: true
+    },
+    path: '/inventory/view',
+    name: 'inventory-view',
+    component: () => import(/* webpackChunkName: "forms" */ '@/views/Inventory/ListInventory.vue')
+  },
+  {
+    meta: {
+      title: 'View Inventory',
+      requiresAuth: true
+    },
+    path: '/inventory/:inventoryId/view',
+    name: 'inventory-view-details',
+    component: () => import(/* webpackChunkName: "forms" */ '@/views/Inventory/InventoryDetails.vue')
+  },
+  {
+    meta: {
       title: 'Create Memo',
       requiresAuth: true
     },

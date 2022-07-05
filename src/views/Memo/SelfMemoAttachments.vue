@@ -118,7 +118,10 @@ onMounted(async () => {
           />
         </field>
         <field label="Attached Files">
-          <div v-for="attachment in attachments" :key="attachment.id">
+          <div
+            v-for="attachment in attachments"
+            :key="attachment.id"
+          >
             <jb-buttons class="justify-start lg:justify-center">
               <jb-button
                 color="info"

@@ -32,6 +32,7 @@ httpClient.interceptors.response.use(
     return response.data
   },
   (error) => {
+    loader.hide()
     if (error.response.status === 401) {
       router.push('/login')
     }

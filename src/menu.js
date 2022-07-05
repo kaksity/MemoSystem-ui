@@ -35,6 +35,22 @@ export default [
       ]
     },
     {
+      icon: mdiDesktopMac,
+      label: 'Inventories',
+      menu: [
+        {
+          label: 'Create',
+          to: '/inventory/create',
+          icon: mdiPlus
+        },
+        {
+          label: 'View',
+          to: '/inventory/view',
+          icon: mdiEye
+        }
+      ]
+    },
+    {
       label: 'Memos',
       subLabel: 'Submenus Example',
       icon: mdiViewList,

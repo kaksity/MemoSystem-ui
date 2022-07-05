@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { mdiBallot } from '@mdi/js'
 import MainSection from '@/components/MainSection.vue'
 import CardComponent from '@/components/CardComponent.vue'
@@ -10,69 +10,79 @@ import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
+import { useRoute } from 'vue-router'
 
 const toastMessage = useToast()
+const route = useRoute()
 
 const form = reactive({
-  fileName: '',
-  fileCode: '',
-  fileDescription: ''
+  article: '',
+  quantity: '',
+  code: ''
 })
 
-function clearInputs () {
-  form.fileName = ''
-  form.fileCode = ''
-  form.fileDescription = ''
-}
-
-async function submit () {
+async function getSingleInventory (id) {
   try {
-    if (form.fileName === '') {
-      toastMessage.error('File Name is required')
-      return
-    } else if (form.fileCode === '') {
-      toastMessage.error('File Number is required')
-      return
-    } else if (form.fileDescription === '') {
-      toastMessage.error('File Description is required')
-      return
-    }
-    const response = await Api.post('/files', form)
-    toastMessage.success(response.message)
-    clearInputs()
+    const { data } = await Api.get(`/inventories/${id}`)
+    form.article = data.article
+    form.quantity = data.quantity
+    form.code = data.code
   } catch (error) {
     toastMessage.error(error.message)
   }
 }
+
+async function submit () {
+  try {
+    if (form.article === '') {
+      toastMessage.error('Inventory Article is required')
+      return
+    } else if (form.code === '') {
+      toastMessage.error('Inventory Code is required')
+      return
+    } else if (form.quantity === '') {
+      toastMessage.error('Inventory Quantity is required')
+      return
+    }
+    const response = await Api.put(`/inventories/${route.params.inventoryId}`, form)
+    await getSingleInventory(route.params.inventoryId)
+    toastMessage.success(response.message)
+  } catch (error) {
+    toastMessage.error(error.message)
+  }
+}
+
+onMounted(async () => {
+  await getSingleInventory(route.params.inventoryId)
+})
 </script>
 <template>
   <div>
     <main-section>
       <card-component
-        title="Create File"
+        title="Update Inventory"
         :icon="mdiBallot"
         form
         @submit.prevent="submit"
       >
-        <field label="File Name">
+        <field label="Inventory Article">
           <control
-            v-model="form.fileName"
+            v-model="form.article"
           />
         </field>
         <divider />
-        <field label="File Number">
+        <field label="Inventory Code">
           <control
-            v-model="form.fileCode"
+            v-model="form.code"
+            disabled
           />
         </field>
         <divider />
         <field
-          label="File Description"
+          label="Inventory Quantity"
         >
           <control
-            v-model="form.fileDescription"
-            row="3"
-            type="textarea"
+            v-model="form.quantity"
           />
         </field>
         <divider />
@@ -80,7 +90,7 @@ async function submit () {
           <jb-button
             type="submit"
             color="info"
-            label="Send"
+            label="Update"
           />
         </jb-buttons>
       </card-component>
