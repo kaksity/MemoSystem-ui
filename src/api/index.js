@@ -3,7 +3,7 @@ import router from '../router'
 import { useLoading } from 'vue3-loading-overlay'
 import 'vue3-loading-overlay/dist/vue3-loading-overlay.css'
 
-const baseURL = 'http://localhost:20000/api/v1'
+const baseURL = 'https://api.cdx.bo.gov.ng/api/v1'
 const loader = useLoading()
 
 const httpClient = axios.create({
