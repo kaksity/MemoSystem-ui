@@ -13,6 +13,7 @@ import { useRouter } from 'vue-router'
 const tableHead = [
   'Title',
   'Date',
+  'Created By',
   'Action'
 ]
 
@@ -22,17 +23,17 @@ const messages = ref([])
 
 const toastMessage = useToast()
 
-async function getSelfMessages () {
+async function getMentionedMessages () {
   try {
     const response = await Api.get('/messages/mentions')
-    messages.value = response.data.messages
+    messages.value = response
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
 
 onMounted(async () => {
-  await getSelfMessages()
+  await getMentionedMessages()
 })
 </script>
 
@@ -56,6 +57,9 @@ onMounted(async () => {
             </td>
             <td data-label="Date">
               {{ message.date }}
+            </td>
+            <td data-label="Date">
+              {{ message.user.fullName }}
             </td>
             <td class="actions-cell">
               <jb-buttons

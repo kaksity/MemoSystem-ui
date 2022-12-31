@@ -10,24 +10,26 @@ import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
-
-const receipients = ref([])
+import { groupErrors } from '@/helpers'
+const recipients = ref([])
 const toastMessage = useToast()
 
-// const receipients = ref([])
+const errors = ref({})
 const editor = ref(null)
 
-const selectedReceipients = ref([])
-const receipientSelectBox = ref({})
+const selectedRecipients = ref([])
+const recipientSelectBox = ref({})
+const displayedRecipients = ref([])
+
 const form = reactive({
-  receipients: null,
+  recipients: null,
   content: '',
   title: '',
   date: new Date().toString()
 })
 
 function clearInputs () {
-  selectedReceipients.value = []
+  selectedRecipients.value = []
   form.content = ''
   form.date = new Date().toString()
   form.title = ''
@@ -37,56 +39,59 @@ function clearInputs () {
 onMounted(async () => {
   await getUsers()
 })
-function setReceipient () {
-  const isExist = selectedReceipients.value.find(t => t.receipient === receipientSelectBox.value.id)
+function setRecipient () {
+  const isExist = selectedRecipients.value.find(id => id === recipientSelectBox.value.id)
   if (!isExist) {
-    selectedReceipients.value.push({
-      receipient: receipientSelectBox.value.id,
-      name: receipientSelectBox.value.label
+    selectedRecipients.value.push(recipientSelectBox.value.id)
+    displayedRecipients.value.push({
+      id: recipientSelectBox.value.id,
+      name: recipientSelectBox.value.label
     })
   }
 }
-function removeSelectedReciepients (id) {
-  const newSelectedReceipients = []
-  selectedReceipients.value.forEach(item => {
-    if (item.receipient !== id) {
-      newSelectedReceipients.push(item)
-    }
-  })
-  selectedReceipients.value = newSelectedReceipients
+function removeSelectedRecipients (id) {
+  selectedRecipients.value = deleteElementFromArray(selectedRecipients.value, id)
+  displayedRecipients.value = deleteElementFromArray(displayedRecipients.value, id)
 }
 
 async function getUsers () {
   try {
     const response = await Api.get('/users')
-    response.data.forEach(element => {
-      receipients.value.push({
+    response.forEach(element => {
+      recipients.value.push({
         id: element.id,
         label: element.fullName
       })
     })
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
+}
+function deleteElementFromArray(array, key) {
+  const newArray = []
+  array.forEach(element => {
+    if((element !== key) && (element.id !== key)) {
+      newArray.push(element)
+    }
+  })
+  return newArray
+}
+function clearErrors() {
+  errors.value = {}
 }
 const submit = async () => {
   try {
-    if (selectedReceipients.value.length === 0) {
-      toastMessage.error('You must select atleast 1 receipient')
-      return
-    } else if (form.title === '') {
-      toastMessage.error('Memo Title is required')
-      return
-    } else if (form.content === '') {
-      toastMessage.error('Memo Content is required')
-      return
-    }
-    form.receipients = selectedReceipients
+    clearErrors()
+    form.recipients = selectedRecipients
     const response = await Api.post('/memos', form)
     toastMessage.success(response.message)
     clearInputs()
   } catch (error) {
-    toastMessage.error(error.message)
+    if(error.errors) {
+      errors.value = groupErrors(error.errors, 'field')
+    } else {
+      toastMessage.error(error.detail)  
+    }
   }
 }
 </script>
@@ -99,36 +104,36 @@ const submit = async () => {
         form
         @submit.prevent="submit"
       >
-        <field label="Receipient">
+        <field label="Recipient" :help="errors.recipients">
           <control
-            v-model="receipientSelectBox"
-            :options="receipients"
-            @change="setReceipient"
+            v-model="recipientSelectBox"
+            :options="recipients"
+            @change="setRecipient"
           />
         </field>
         <div
-          v-if="selectedReceipients.length"
+          v-if="selectedRecipients.length"
           class="bg-opacity-50 p-3 dark:bg-gray-800"
         >
           <span
-            v-for="receipient in selectedReceipients"
-            :key="receipient.receipient"
+            v-for="recipient in displayedRecipients"
+            :key="recipient.recipient"
             class="inline-block px-2 py-1 rounded-sm mr-2 text-sm dark:bg-gray-700 light:bg-gray-300"
           >
-            {{ receipient.name }} <span><button
+            {{ recipient.name }} <span><JButton
               class="inline-block bg-red-700 p-1 rounded-sm mr-2 text-white-700"
-              @click="removeSelectedReciepients(receipient.receipient)"
-            >X</button></span>
+              @click="removeSelectedRecipients(recipient.id)"
+            >X</JButton></span>
           </span>
         </div>
         <divider />
-        <field label="Memo Title">
+        <field label="Memo Title" :help="errors.title">
           <control
             v-model="form.title"
           />
         </field>
         <divider />
-        <field label="Date">
+        <field label="Date" :help="errors.date">
           <datepicker
             v-model="form.date"
             auto-apply
@@ -136,7 +141,7 @@ const submit = async () => {
           />
         </field>
         <divider />
-        <field label="Memo Content">
+        <field label="Memo Content" :help="errors.content">
           <QuillEditor
             ref="editor"
             v-model:content="form.content"

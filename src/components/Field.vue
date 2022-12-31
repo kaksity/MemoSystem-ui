@@ -41,9 +41,9 @@ const wrapperClass = computed(() => {
     </div>
     <div
       v-if="help"
-      class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+      class="text-xs text-red-500 dark:text-red-400 mt-1"
     >
-      {{ help }}
+      {{ help[0].message }}
     </div>
   </div>
 </template>

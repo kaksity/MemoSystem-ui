@@ -10,17 +10,23 @@ import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
-
+import { groupErrors } from '@/helpers'
 const selectOptions = ref([])
 
 const toastMessage = useToast()
+
+const errors = ref([])
 
 const form = reactive({
   fullName: '',
   username: '',
   password: '',
-  role: ''
+  roleId: ''
 })
+
+function clearError () {
+  errors.value = {}
+}
 
 function clearInputs () {
   form.fullName = ''
@@ -32,9 +38,14 @@ function clearInputs () {
 async function getRoles () {
   try {
     const response = await Api.get('/roles')
-    selectOptions.value = response.data
+    selectOptions.value = response.map(({ id, name: label }) => {
+      return {
+        id,
+        label
+      }
+    })
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
 
@@ -43,27 +54,22 @@ onMounted(async () => {
 })
 
 const submit = () => {
-  if (form.fullName === '' || form.fullName.length < 8) {
-    toastMessage.error('Full Name is required and must be 5 or more characters')
-    return
+  clearError()
+  const requestBody = {
+    fullName: form.fullName,
+    username: form.username,
+    roleId: form.roleId.id,
+    password: form.password
   }
-
-  if (form.username === '' || form.username.length < 5) {
-    toastMessage.error('Username is required and must be 5 or more characters')
-    return
-  }
-
-  if (form.password === '' || form.password.length < 8) {
-    toastMessage.error('Password is required and must 8 or more characters')
-    return
-  }
-
-  form.role = form.role.id
-  Api.post('/users', form).then((response) => {
+  Api.post('/users', { ...form, roleId: form.roleId.id}).then((response) => {
     toastMessage.success(response.message)
     clearInputs()
   }).catch((error) => {
-    toastMessage.error(error.message)
+    if (error.errors) {
+      errors.value = groupErrors(error.errors, 'field')
+    } else {
+      toastMessage.error(error.detail)
+    }
   })
 }
 </script>
@@ -78,19 +84,24 @@ const submit = () => {
       >
         <field
           label="Full Name"
+          :help="errors.fullName"
         >
           <control
             v-model="form.fullName"
           />
         </field>
-        <field label="Role">
+        <field
+          label="Role"
+          :help="errors.roleId"
+        >
           <control
-            v-model="form.role"
+            v-model="form.roleId"
             :options="selectOptions"
           />
         </field>
         <field
           label="Username"
+          :help="errors.username"
         >
           <control
             v-model="form.username"
@@ -100,6 +111,7 @@ const submit = () => {
         </field>
         <field
           label="Password"
+          :help="errors.password"
         >
           <control
             v-model="form.password"

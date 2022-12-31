@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { mdiBallot } from '@mdi/js'
 import MainSection from '@/components/MainSection.vue'
 import CardComponent from '@/components/CardComponent.vue'
@@ -10,6 +10,7 @@ import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
+import { groupErrors } from '@/helpers';
 
 const toastMessage = useToast()
 
@@ -18,30 +19,27 @@ const form = reactive({
   quantity: '',
   code: ''
 })
-
+const errors = ref({})
 function clearInputs () {
   form.article = ''
   form.quantity = ''
   form.code = ''
 }
-
+function clearErrors() {
+  errors.value = {}
+}
 async function submit () {
   try {
-    if (form.article === '') {
-      toastMessage.error('Inventory Article is required')
-      return
-    } else if (form.code === '') {
-      toastMessage.error('Inventory Code is required')
-      return
-    } else if (form.quantity === '') {
-      toastMessage.error('Inventory Quantity is required')
-      return
-    }
+    clearErrors()
     const response = await Api.post('/inventories', form)
     toastMessage.success(response.message)
     clearInputs()
   } catch (error) {
-    toastMessage.error(error.message)
+    if(error.errors){
+      errors.value = groupErrors(error.errors, 'field')
+    } else {
+      toastMessage.error(error.detail)
+    }
   }
 }
 </script>
@@ -54,13 +52,13 @@ async function submit () {
         form
         @submit.prevent="submit"
       >
-        <field label="Inventory Article">
+        <field label="Inventory Article" :help="errors.article">
           <control
             v-model="form.article"
           />
         </field>
         <divider />
-        <field label="Inventory Code">
+        <field label="Inventory Code" :help="errors.code">
           <control
             v-model="form.code"
           />
@@ -68,6 +66,7 @@ async function submit () {
         <divider />
         <field
           label="Inventory Quantity"
+          :help="errors.quantity"
         >
           <control
             v-model="form.quantity"

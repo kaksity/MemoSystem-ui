@@ -30,9 +30,9 @@ const memoId = ref('')
 async function getSelfMemos () {
   try {
     const response = await Api.get('/memos/self')
-    memos.value = response.data.memos
+    memos.value = response
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
 
@@ -41,12 +41,9 @@ function deleteMemo (id) {
     toastMessage.success(response.message)
     getSelfMemos()
   }).catch((error) => {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   })
 }
-// function viewMemoDetails (id) {
-//   router.push(`/memo/${id}/view`)
-// }
 onMounted(async () => {
   await getSelfMemos()
 })

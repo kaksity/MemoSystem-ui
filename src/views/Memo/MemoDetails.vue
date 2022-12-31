@@ -11,31 +11,23 @@ import { useRoute } from 'vue-router'
 
 const routes = useRoute()
 const memo = ref({})
-const receipients = ref([])
+const recipients = ref([])
 
 const toastMessage = useToast()
 
-async function getMemoReceipients (memoId) {
-  try {
-    const response = await Api.get(`/memos/${memoId}/receipients`)
-    receipients.value = response.data.receipients
-  } catch (error) {
-    toastMessage.error(error.message)
-  }
-}
 async function getMemoDetails (memoId) {
   try {
     const response = await Api.get(`/memos/${memoId}`)
-    memo.value = response.data.memo
+    memo.value = response
+    recipients.value = []
     document.getElementById('memoContent').innerHTML = memo.value.content
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
 onMounted(async () => {
   const memoId = routes.params.memoId
   await getMemoDetails(memoId)
-  await getMemoReceipients(memoId)
 })
 
 </script>
@@ -47,15 +39,15 @@ onMounted(async () => {
         :icon="mdiBallot"
       >
         <field
-          v-if="receipients.length"
+          v-if="recipients.length"
           label="Recipients"
         >
           <span
-            v-for="receipient in receipients"
-            :key="receipient.receipient"
+            v-for="recipient in recipients"
+            :key="recipient.recipient"
             class="inline-block px-2 py-1"
           >
-            {{ receipient.user.fullName }}
+            {{ recipient.fullName }}
           </span>
         </field>
         <divider />

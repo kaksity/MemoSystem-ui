@@ -13,25 +13,17 @@ import JbButton from '@/components/JbButton.vue'
 
 const routes = useRoute()
 const memo = ref({})
-const receipients = ref([])
+const recipients = ref([])
 const attachments = ref([])
 const toastMessage = useToast()
 
 const memoId = ref(routes.params.memoId)
 
-async function getMemoReceipients (memoId) {
-  try {
-    const response = await Api.get(`/memos/${memoId}/receipients`)
-    receipients.value = response.data.receipients
-  } catch (error) {
-    toastMessage.error(error.message)
-  }
-}
-
 async function getMemoDetails (memoId) {
   try {
     const response = await Api.get(`/memos/${memoId}`)
-    memo.value = response.data.memo
+    memo.value = response
+    recipients.value = response.recipients
   } catch (error) {
     toastMessage.error(error.message)
   }
@@ -42,7 +34,7 @@ function viewMemoAttachment (url) {
 async function getMemoAttachments (memoId) {
   try {
     const response = await Api.get(`/memos/${memoId}/attachments`)
-    attachments.value = response.data.attachments
+    attachments.value = response
   } catch (error) {
     toastMessage.error(error.message)
   }
@@ -50,7 +42,6 @@ async function getMemoAttachments (memoId) {
 
 onMounted(async () => {
   await getMemoDetails(memoId.value)
-  await getMemoReceipients(memoId.value)
   await getMemoAttachments(memoId.value)
 })
 
@@ -63,15 +54,15 @@ onMounted(async () => {
         :icon="mdiBallot"
       >
         <field
-          v-if="receipients.length"
+          v-if="recipients.length"
           label="Recipients"
         >
           <span
-            v-for="receipient in receipients"
-            :key="receipient.receipient"
+            v-for="recipient in recipients"
+            :key="recipient.recipient"
             class="inline-block px-2 py-1"
           >
-            {{ receipient.user.fullName }}
+            {{ recipient.fullName }}
           </span>
         </field>
         <divider />

@@ -22,17 +22,17 @@ const memos = ref([])
 
 const toastMessage = useToast()
 
-async function getSelfMemos () {
+async function getMentionedMemos () {
   try {
     const response = await Api.get('/memos/mentions')
-    memos.value = response.data.memos
+    memos.value = response
   } catch (error) {
     toastMessage.error(error.message)
   }
 }
 
 onMounted(async () => {
-  await getSelfMemos()
+  await getMentionedMemos()
 })
 </script>
 

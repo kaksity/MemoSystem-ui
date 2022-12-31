@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -39,9 +38,9 @@ router.beforeEach((to, from, next) => {
     store.dispatch('logout')
     next()
   } else if (to.meta.requiresAuth === true && store.getters.isUserLoggedIn === true) {
-    if (to.meta.mustBeAdmin === true && store.getters.isAdmin === false) {
-      next({ path: '/dashboard' })
-    }
+    // if (to.meta.mustBeAdmin === true && store.getters.isAdmin === false) {
+    //   next({ path: '/dashboard' })
+    // }
     next()
   } else {
     next({ path: '/login' })

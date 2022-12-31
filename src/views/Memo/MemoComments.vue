@@ -11,115 +11,120 @@ import Field from '@/components/Field.vue'
 import Control from '@/components/Control.vue'
 import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
+import { groupErrors } from '@/helpers';
 
 const routes = useRoute()
 const memo = ref({})
-const receipients = ref([])
 const users = ref([])
-const selectedReceipients = ref([])
+const selectedRecipients = ref([])
+const displayedRecipients = ref([])
 const memoComments = ref([])
-const receipientSelectBox = ref({})
+const recipientSelectBox = ref({})
 const toastMessage = useToast()
 const memoId = ref(routes.params.memoId)
+const errors = ref({})
 
 const form = reactive({
   comment: '',
-  receipients: null
+  recipients: null
 })
 
-function setReceipient () {
-  const isExist = selectedReceipients.value.find(t => t.receipient === receipientSelectBox.value.id)
+function setRecipient () {
+  const isExist = selectedRecipients.value.find(id => id === recipientSelectBox.value.id)
   if (!isExist) {
-    selectedReceipients.value.push({
-      receipient: receipientSelectBox.value.id,
-      name: receipientSelectBox.value.label
+    selectedRecipients.value.push(recipientSelectBox.value.id)
+    displayedRecipients.value.push({
+      id: recipientSelectBox.value.id,
+      name: recipientSelectBox.value.label
     })
   }
 }
-function removeSelectedReciepients (id) {
-  const newSelectedReceipients = []
-  selectedReceipients.value.forEach(item => {
-    if (item.receipient !== id) {
-      newSelectedReceipients.push(item)
+function deleteElementFromArray(array, key) {
+  const newArray = []
+  array.forEach(element => {
+    if ((element !== key) && (element.id !== key)) {
+      newArray.push(element)
     }
   })
-  selectedReceipients.value = newSelectedReceipients
+  return newArray
 }
-async function getMemoReceipients (memoId) {
-  try {
-    const response = await Api.get(`/memos/${memoId}/receipients`)
-    receipients.value = response.data.receipients
-  } catch (error) {
-    toastMessage.error(error.message)
-  }
+function removeSelectedRecipients (id) {
+  selectedRecipients.value = deleteElementFromArray(selectedRecipients.value, id)
+  displayedRecipients.value = deleteElementFromArray(displayedRecipients.value, id)
 }
 async function getMemoDetails (memoId) {
   try {
     const response = await Api.get(`/memos/${memoId}`)
-    memo.value = response.data.memo
+    memo.value = response
+    displayedRecipients.value = []
+    selectedRecipients.value = []
+    response.recipients.forEach(recipient => {
+      selectedRecipients.value.push(recipient.id)
+      displayedRecipients.value.push({
+        id: recipient.id,
+        name: recipient.fullName
+      })
+    })
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
 async function getUsers () {
   try {
     const response = await Api.get('/users')
-    response.data.forEach(element => {
+    response.forEach(element => {
       users.value.push({
         id: element.id,
         label: element.fullName
       })
     })
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
-
+function clearErrors () {
+  errors.value = {}
+}
 async function submitComment () {
-  if (selectedReceipients.value.length === 0) {
-    toastMessage.error('You must select at least 1 receipient')
-    return
-  }
-  if (form.comment === '') {
-    toastMessage.error('Comment is required')
-    return
-  }
   try {
-    form.receipients = selectedReceipients
+    clearErrors()
+    form.recipients = selectedRecipients
     const response = await Api.post(`/memos/${memoId.value}/comments`, form)
 
     toastMessage.success(response.message)
     await initializeData()
     clearInputFields()
   } catch (error) {
-    toastMessage.error(error.message)
+    if (error.errors) {
+      errors.value = groupErrors(error.errors, 'field')
+    } else {
+      toastMessage.error(error.detail)
+    }
   }
 }
 async function getMemoComments (memoId) {
   try {
     const response = await Api.get(`/memos/${memoId}/comments`)
-    memoComments.value = response.data.memoComments
+    memoComments.value = response
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
 async function deleteMemoComment (id) {
   try {
-    const response = await Api.delete(`/memos/comments/${id}`)
+    const response = await Api.delete(`/memos/${memoId.value}/comments/${id}`)
     toastMessage.success(response.message)
     await getMemoComments(memoId.value)
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
 function clearInputFields () {
   form.comment = ''
-  selectedReceipients.value = []
 }
 async function initializeData () {
   await getMemoDetails(memoId.value)
   await getMemoComments(memoId.value)
-  await getMemoReceipients(memoId.value)
 }
 onMounted(async () => {
   await initializeData()
@@ -136,15 +141,15 @@ onMounted(async () => {
         form
       >
         <field
-          v-if="receipients.length"
+          v-if="displayedRecipients.length"
           label="Recipients"
         >
           <span
-            v-for="receipient in receipients"
-            :key="receipient.receipient"
+            v-for="recipient in displayedRecipients"
+            :key="recipient.id"
             class="inline-block px-2 py-1"
           >
-            {{ receipient.user.fullName }}
+            {{ recipient.name }}
           </span>
         </field>
         <divider />
@@ -163,7 +168,7 @@ onMounted(async () => {
           >
             <div class="px-2 py-1">
               <div class="">
-                {{ comment.commentBy }} on <span class="text-sm">{{ comment.date }}</span> <button
+                {{ comment.user.fullName }} on <span class="text-sm">{{ comment.date }}</span> <button
                   class="inline-block bg-red-700 p-2 rounded-sm mr-2 text-white-700"
                   @click="deleteMemoComment(comment.id)"
                 >
@@ -171,37 +176,38 @@ onMounted(async () => {
                 </button>
               </div>
               <div class="text-gray-500">
-                {{ comment.message }}
+                {{ comment.comment }}
               </div>
             </div>
           </div>
         </field>
         <divider />
-        <field label="Receipient">
+        <field label="Recipient" :help="errors.recipients">
           <control
-            v-model="receipientSelectBox"
+            v-model="recipientSelectBox"
             :options="users"
-            @change="setReceipient"
+            @change="setRecipient"
           />
         </field>
         <div
-          v-if="selectedReceipients.length"
+          v-if="displayedRecipients.length"
           class="bg-opacity-50 p-3 dark:bg-gray-800"
         >
           <span
-            v-for="receipient in selectedReceipients"
-            :key="receipient.receipient"
+            v-for="recipient in displayedRecipients"
+            :key="recipient.id"
             class="inline-block px-2 py-1 rounded-sm mr-2 text-sm dark:bg-gray-700 light:bg-gray-300"
           >
-            {{ receipient.name }} <span><button
+            {{ recipient.name }} <span><jb-button
               class="inline-block bg-red-700 p-1 rounded-sm mr-2 text-white-700"
-              @click="removeSelectedReciepients(receipient.receipient)"
-            >X</button></span>
+              @click="removeSelectedRecipients(recipient.id)"
+            >X</jb-button></span>
           </span>
         </div>
         <divider />
         <field
           label="Comment"
+          :help="errors.comment"
         >
           <control
             v-model="form.comment"

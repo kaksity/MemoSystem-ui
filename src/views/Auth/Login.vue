@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { mdiAccount, mdiAsterisk } from '@mdi/js'
 import FullScreenSection from '@/components/FullScreenSection.vue'
@@ -11,7 +11,8 @@ import Divider from '@/components/Divider.vue'
 import JbButton from '@/components/JbButton.vue'
 import { useStore } from 'vuex'
 import JbButtons from '@/components/JbButtons.vue'
-import Axios from '@/api'
+import httpClient from '@/api'
+import { groupErrors } from '@/helpers'
 import { useToast } from 'vue-toastification'
 
 const form = reactive({
@@ -23,36 +24,24 @@ const form = reactive({
 const toastMessage = useToast()
 const router = useRouter()
 const store = useStore()
-const error = reactive({
-  username: {
-    message: ''
-  },
-  password: {
-    message: ''
-  }
-})
+const errors = ref({})
 
 function clearError () {
-  error.username.message = ''
-  error.password.message = ''
+  errors.value = {}
 }
 const submit = () => {
   clearError()
-  if (form.username === '' || form.password === '') {
-    error.username.message = 'Username is required'
-    error.password.message = 'Password is required'
-    return
-  } else if (form.password.length < 8) {
-    toastMessage.error('Invalid login credentials')
-    return
-  }
-  Axios.post('/auth/login', form).then((response) => {
-    console.log(response.data)
-    store.dispatch('login', response.data)
-    toastMessage.success(response.message)
+
+  httpClient.post('/auth/login', form).then((response) => {
+    store.dispatch('login', response)
+    toastMessage.success('User Logged In')
     router.push('/dashboard')
   }).catch((error) => {
-    toastMessage.error(error.message)
+    if (error.errors) {
+      errors.value = groupErrors(error.errors, 'field')
+    } else {
+      toastMessage.error(error.detail)
+    }
   }).finally(() => {
   })
 }
@@ -71,7 +60,7 @@ const submit = () => {
     >
       <field
         label="Login"
-        :help="error.username.message"
+        :help="errors.username"
       >
         <control
           v-model="form.username"
@@ -83,7 +72,7 @@ const submit = () => {
 
       <field
         label="Password"
-        :help="error.password.message"
+        :help="errors.password"
       >
         <control
           v-model="form.password"

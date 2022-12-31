@@ -1,10 +1,7 @@
 import axios from 'axios'
 import router from '../router'
-import { useLoading } from 'vue3-loading-overlay'
-import 'vue3-loading-overlay/dist/vue3-loading-overlay.css'
 
-const baseURL = 'http://localhost:20000/api/v1'
-const loader = useLoading()
+const baseURL = 'http://localhost:3333/api/v1'
 
 const httpClient = axios.create({
   baseURL,
@@ -16,10 +13,10 @@ const httpClient = axios.create({
 
 httpClient.interceptors.request.use(
   async (config) => {
-    loader.show()
-    const token = localStorage.getItem('memo-system-token')
+    const token = JSON.parse(localStorage.getItem('memo-system-token'))
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+      const { token: accessToken } = token
+      config.headers.Authorization = `Bearer ${accessToken}`
     }
     return config
   },
@@ -28,11 +25,9 @@ httpClient.interceptors.request.use(
 
 httpClient.interceptors.response.use(
   async (response) => {
-    loader.hide()
     return response.data
   },
   (error) => {
-    loader.hide()
     if (error.response.status === 401) {
       router.push('/login')
     }

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { mdiBallot } from '@mdi/js'
 import MainSection from '@/components/MainSection.vue'
 import CardComponent from '@/components/CardComponent.vue'
@@ -11,6 +11,7 @@ import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
 import { useRoute } from 'vue-router'
+import { groupErrors } from '@/helpers';
 
 const toastMessage = useToast()
 const route = useRoute()
@@ -20,35 +21,32 @@ const form = reactive({
   quantity: '',
   code: ''
 })
-
+const errors = ref([])
 async function getSingleInventory (id) {
   try {
-    const { data } = await Api.get(`/inventories/${id}`)
+    const data  = await Api.get(`/inventories/${id}`)
     form.article = data.article
     form.quantity = data.quantity
     form.code = data.code
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
-
+function clearErrors() {
+  errors.value = {}
+}
 async function submit () {
   try {
-    if (form.article === '') {
-      toastMessage.error('Inventory Article is required')
-      return
-    } else if (form.code === '') {
-      toastMessage.error('Inventory Code is required')
-      return
-    } else if (form.quantity === '') {
-      toastMessage.error('Inventory Quantity is required')
-      return
-    }
+    clearErrors()
     const response = await Api.put(`/inventories/${route.params.inventoryId}`, form)
     await getSingleInventory(route.params.inventoryId)
     toastMessage.success(response.message)
   } catch (error) {
-    toastMessage.error(error.message)
+    if(error.errors) {
+      errors.value = groupErrors(error.errors, 'field')
+    } else {
+      toastMessage.error(error.detail)
+    }
   }
 }
 
@@ -65,13 +63,13 @@ onMounted(async () => {
         form
         @submit.prevent="submit"
       >
-        <field label="Inventory Article">
+        <field label="Inventory Article" :help="errors.article">
           <control
             v-model="form.article"
           />
         </field>
         <divider />
-        <field label="Inventory Code">
+        <field label="Inventory Code" :help="errors.code">
           <control
             v-model="form.code"
             disabled
@@ -80,6 +78,7 @@ onMounted(async () => {
         <divider />
         <field
           label="Inventory Quantity"
+          :help="errors.quantity"
         >
           <control
             v-model="form.quantity"

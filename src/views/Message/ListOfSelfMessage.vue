@@ -14,6 +14,7 @@ import { useRouter } from 'vue-router'
 const tableHead = [
   'Title',
   'Date',
+  'Created By',
   'Action'
 ]
 
@@ -30,7 +31,7 @@ const messageId = ref('')
 async function getSelfMessages () {
   try {
     const response = await Api.get('/messages/self')
-    messages.value = response.data.messages
+    messages.value = response
   } catch (error) {
     toastMessage.error(error.message)
   }
@@ -41,7 +42,7 @@ function deleteMessage (id) {
     toastMessage.success(response.message)
     getSelfMessages()
   }).catch((error) => {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   })
 }
 
@@ -70,6 +71,9 @@ onMounted(async () => {
             </td>
             <td data-label="Date">
               {{ message.date }}
+            </td>
+            <td data-label="Date">
+              {{ message.user.fullName }}
             </td>
             <td class="actions-cell">
               <jb-buttons

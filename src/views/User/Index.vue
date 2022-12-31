@@ -29,7 +29,7 @@ const userId = ref('')
 async function getUsers () {
   try {
     const response = await Api.get('/users')
-    users.value = response.data
+    users.value = response
   } catch (error) {
     toastMessage.error(error.message)
   }
@@ -40,7 +40,7 @@ function deleteUser (id) {
     toastMessage.success(response.message)
     getUsers()
   }).catch((error) => {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   })
 }
 
@@ -71,7 +71,7 @@ onMounted(async () => {
               {{ user.username }}
             </td>
             <td data-label="Role">
-              {{ user.roleName }}
+              {{ user.role.name }}
             </td>
             <td class="actions-cell">
               <jb-buttons

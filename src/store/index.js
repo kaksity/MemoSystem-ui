@@ -120,17 +120,12 @@ export default createStore({
   actions: {
     login ({ commit }, payload) {
       // commit it to the localstorage
-      localStorage.setItem('memo-system-token', payload.token)
-      localStorage.setItem('memo-system-expires', payload.expires)
-      localStorage.setItem('memo-system-fullname', payload.user.fullName)
-      localStorage.setItem('memo-system-role', payload.user.roleCode)
-      commit('user', { token: payload.token, expires: payload.expires, name: payload.user.fullName, role: payload.user.roleCode })
+      const { access_token: accessToken } = payload
+      localStorage.setItem('memo-system-token', JSON.stringify(accessToken))
+      commit('user', { token: accessToken })
     },
     logout ({ commit }) {
       localStorage.removeItem('memo-system-token')
-      localStorage.removeItem('memo-system-expires')
-      localStorage.removeItem('memo-system-fullname')
-      localStorage.removeItem('memo-system-role')
       commit('logout')
     },
     setStyle ({ commit, dispatch }, payload) {
