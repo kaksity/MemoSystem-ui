@@ -23,6 +23,7 @@
     "vue-router": "^4.0.0-0",
     "vue-toastification": "^2.0.0-rc.5",
     "vue3-loading-overlay": "^0.0.0",
+    "nprogress": "^0.2.0",
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {

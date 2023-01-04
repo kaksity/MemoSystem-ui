@@ -6,6 +6,7 @@ import { darkModeKey } from '@/config.js'
 import Toast from 'vue-toastification'
 // Import the CSS or use your own!
 import 'vue-toastification/dist/index.css'
+import 'nprogress/nprogress.css'
 import './css/main.css'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
@@ -38,9 +39,9 @@ router.beforeEach((to, from, next) => {
     store.dispatch('logout')
     next()
   } else if (to.meta.requiresAuth === true && store.getters.isUserLoggedIn === true) {
-    // if (to.meta.mustBeAdmin === true && store.getters.isAdmin === false) {
-    //   next({ path: '/dashboard' })
-    // }
+    if (to.meta.mustBeAdmin === true && store.getters.isAdmin === false) {
+      next({ path: '/dashboard' })
+    }
     next()
   } else {
     next({ path: '/login' })

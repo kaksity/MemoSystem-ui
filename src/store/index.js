@@ -25,7 +25,7 @@ export default createStore({
     overlayStyle: '',
 
     /* User */
-    userName: null || localStorage.getItem('memo-system-fullname'),
+    userName: null || localStorage.getItem('memo-system-full-name'),
     userEmail: null,
     userAvatar: null,
     userRole: null || localStorage.getItem('memo-system-role'),
@@ -68,17 +68,10 @@ export default createStore({
 
     /* User */
     user (state, payload) {
-      if (payload.name) {
-        state.userName = payload.name
-      }
-      if (payload.role) {
-        state.userRole = payload.role
-      }
-      if (payload.email) {
-        state.userEmail = payload.email
-      }
-      if (payload.avatar) {
-        state.userAvatar = payload.avatar
+      const { user, token } = payload
+      if (user) {
+        state.userName = payload.user.fullName
+        state.userRole = payload.user.role.code
       }
       if (payload.token) {
         state.userLoginToken = payload.token
@@ -87,9 +80,6 @@ export default createStore({
     },
     logout (state) {
       state.userName = null
-      state.userRole = null
-      state.userEmail = null
-      state.userAvatar = null
       state.userLoginToken = null
       state.userTokenExpires = null
     }
@@ -98,31 +88,24 @@ export default createStore({
     user (state) {
       return {
         userName: state.userName,
-        userEmail: state.userEmail,
-        userAvatar: state.userAvatar,
         userLoginToken: state.userLoginToken,
         userTokenExpires: state.userTokenExpires
       }
     },
     isUserLoggedIn (state) {
-      if (state.userLoginToken === null || state.userTokenExpires === null) {
-        return false
-      }
-      return true
+      return (state.userLoginToken === null || state.userTokenExpires === null) ? false : true
     },
     isAdmin (state) {
-      if (state.userRole !== 'admin') {
-        return false
-      }
-      return true
+      return (state.userRole !== 'system-admin') ? false : true
     }
   },
   actions: {
     login ({ commit }, payload) {
-      // commit it to the localstorage
-      const { access_token: accessToken } = payload
+      // commit it to the local storage
+      const { access_token: accessToken, user } = payload
+      localStorage.setItem('memo-system-full-name', user.fullName)
       localStorage.setItem('memo-system-token', JSON.stringify(accessToken))
-      commit('user', { token: accessToken })
+      commit('user', { token: accessToken, user })
     },
     logout ({ commit }) {
       localStorage.removeItem('memo-system-token')

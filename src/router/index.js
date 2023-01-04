@@ -195,6 +195,16 @@ const routes = [
   },
   {
     meta: {
+      title: 'Change Password',
+      requiresAuth: true,
+      mustBeAdmin: true
+    },
+    path: '/settings/change-password',
+    name: 'settings-change-password',
+    component: () => import('@/views/Settings/ChangePassword.vue')
+  },
+  {
+    meta: {
       title: 'View Users',
       requiresAuth: true,
       mustBeAdmin: true

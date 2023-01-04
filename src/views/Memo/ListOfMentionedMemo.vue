@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import MainSection from '@/components/MainSection.vue'
 // import Notification from '@/components/Notification.vue'
 import DataTable from '@/components/DataTable.vue'
@@ -8,6 +8,7 @@ import Api from '@/api'
 import JbButtons from '@/components/JbButtons.vue'
 import JbButton from '@/components/JbButton.vue'
 import { mdiEye, mdiMessage, mdiAttachment } from '@mdi/js'
+import FPagination from '@/components/FPagination.vue'
 import { useToast } from 'vue-toastification'
 import { useRouter } from 'vue-router'
 const tableHead = [
@@ -19,13 +20,42 @@ const tableHead = [
 const router = useRouter()
 
 const memos = ref([])
+const paginationData = ref({})
 
+const params = reactive({
+  page: 1,
+  limit: 100
+})
+
+const currentPage = ref(1)
 const toastMessage = useToast()
+
+async function goToNextPage() {
+  params.page++
+  await getMentionedMemos()
+}
+async function goToPreviousPage() {
+  params.page--
+  await getMentionedMemos()
+}
+async function goToCurrentPage(page) {
+  params.page = page
+  await getMentionedMemos()
+}
+async function goToFirstPage() {
+  params.page = paginationData.value.first_page
+  await getMentionedMemos()
+}
+async function goToLastPage() {
+  params.page = paginationData.value.last_page
+  await getMentionedMemos()
+}
 
 async function getMentionedMemos () {
   try {
-    const response = await Api.get('/memos/mentions')
-    memos.value = response
+    const { data, meta } = await Api.get('/memos/mentions')
+    memos.value = data
+    paginationData.value = meta
   } catch (error) {
     toastMessage.error(error.message)
   }
@@ -84,6 +114,15 @@ onMounted(async () => {
             </td>
           </tr>
         </data-table>
+        <FPagination
+          :totalNumberOfPages="paginationData.last_page"
+          :currentPage="currentPage"
+          @go-to-first-page="goToFirstPage"
+          @go-to-last-page="goToLastPage"
+          @go-to-next-page="goToNextPage"
+          @go-to-previous-page="goToPreviousPage"
+          @go-to-current-page="goToCurrentPage"
+        />
       </card-component>
     </main-section>
   </div>

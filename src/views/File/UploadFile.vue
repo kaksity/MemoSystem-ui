@@ -13,6 +13,7 @@ import JbButton from '@/components/JbButton.vue'
 import { mdiEye, mdiTrashCan, mdiBallot } from '@mdi/js'
 import { useToast } from 'vue-toastification'
 import { useRoute } from 'vue-router'
+import { groupErrors } from '@/helpers';
 
 const routes = useRoute()
 
@@ -24,22 +25,21 @@ const tableHead = [
 const fileDocuments = ref([])
 
 const toastMessage = useToast()
-
+const errors = ref([])
 const fileDocumentId = ref('')
 const isModalDangerActive = ref(false)
 
 const fileId = ref(routes.params.fileId)
 
 const form = reactive({
-  documentName: '',
-  fileId: fileId,
+  name: '',
   file: null
 })
 
 async function getFileDocuments (fileId) {
   try {
     const response = await Api.get(`/files/${fileId}/documents`)
-    fileDocuments.value = response.data.fileDocuments
+    fileDocuments.value = response
   } catch (error) {
     toastMessage.error(error.message)
   }
@@ -50,32 +50,35 @@ function onFileChange (e) {
 }
 
 function clearInputs () {
-  form.documentName = ''
+  form.name = ''
   form.file = null
 }
-
+function clearErrors() {
+  errors.value = {}
+}
 async function submit () {
-  if (form.documentName === '') {
-    toastMessage.error('Document Name is required')
-    return
-  } else if (form.file === null) {
-    toastMessage.error('Document is required')
-    return
-  }
-
   try {
+    
+    clearErrors()
+    if (form.file[0]) {
+      return 
+    }
     const uploadForm = new FormData()
-    uploadForm.append('fileId', form.fileId)
-    uploadForm.append('documentName', form.documentName)
-    uploadForm.append('file', form.file[0])
 
-    const response = await Api.post('/files/documents', uploadForm)
+    uploadForm.append('name', form.name)
+    uploadForm.append('file', form.file[0] == null ? null : form.file[0])
+
+    const response = await Api.post(`/files/${fileId.value}/documents`, uploadForm)
 
     toastMessage.success(response.message)
     await getFileDocuments(fileId.value)
     clearInputs()
   } catch (error) {
-    toastMessage.error(error.message)
+    if (error.errors) {
+      errors.value = groupErrors(error.errors, '')
+    } else {
+      toastMessage.error(error.detail)
+    }
   }
 }
 
@@ -84,11 +87,11 @@ function openFileToView (url) {
 }
 async function deleteFileDocument (id) {
   try {
-    const response = await Api.delete(`/files/documents/${id}`)
+    const response = await Api.delete(`/files/${fileId.value}/documents/${id}`)
     toastMessage.success(response.message)
     await getFileDocuments(fileId.value)
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
 
@@ -106,14 +109,14 @@ onMounted(async () => {
         form
         @submit.prevent="submit"
       >
-        <field label="Document Name">
+        <field label="Document Name" :help="errors.name">
           <control
-            v-model="form.documentName"
+            v-model="form.name"
             placeholder="Enter the name of document"
           />
         </field>
         <divider />
-        <field label="Document">
+        <field label="Document" :help="errors.file">
           <control
             type="file"
             placeholder="Enter the name of document"

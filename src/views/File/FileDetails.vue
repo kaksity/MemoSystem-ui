@@ -17,7 +17,7 @@ const toastMessage = useToast()
 async function getFileDetails (fileId) {
   try {
     const response = await Api.get(`/files/${fileId}`)
-    file.value = response.data.file
+    file.value = response
     document.getElementById('fileContent').innerHTML = file.value.description
   } catch (error) {
     toastMessage.error(error.message)

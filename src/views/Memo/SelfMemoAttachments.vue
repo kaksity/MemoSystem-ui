@@ -30,6 +30,9 @@ function onFileChange (e) {
 
 async function uploadAttachment () {
   try {
+    if (form.file[0]) {
+      return 
+    }
     const uploadForm = new FormData()
     uploadForm.append('file', form.file[0])
     const response = await Api.post(`/memos/${memoId.value}/attachments`, uploadForm)

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import MainSection from '@/components/MainSection.vue'
 import DataTable from '@/components/DataTable.vue'
 import CardComponent from '@/components/CardComponent.vue'
@@ -7,6 +7,7 @@ import Api from '@/api'
 import ModalBox from '@/components/ModalBox.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import JbButton from '@/components/JbButton.vue'
+import FPagination from '@/components/FPagination.vue'
 import { mdiEye, mdiTrashCan, mdiUpload } from '@mdi/js'
 import { useToast } from 'vue-toastification'
 import { useRouter } from 'vue-router'
@@ -28,19 +29,49 @@ const fileId = ref('')
 
 async function getFiles () {
   try {
-    const response = await Api.get('/files')
-    files.value = response.data.files
+    const { data, meta } = await Api.get('/files', { params })
+    files.value = data
+    paginationData.value = meta
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
+async function goToNextPage() {
+  params.page++
+  await getSelfMemos()
+}
+async function goToPreviousPage() {
+  params.page--
+  await getSelfMemos()
+}
+async function goToCurrentPage(page) {
+  params.page = page
+  await getSelfMemos()
+}
+async function goToFirstPage() {
+  params.page = paginationData.value.first_page
+  await getSelfMemos()
+}
+async function goToLastPage() {
+  params.page = paginationData.value.last_page
+  await getSelfMemos()
+}
+const paginationData = ref({})
+
+const params = reactive({
+  page: 1,
+  limit: 100
+})
+
+const currentPage = ref(1)
+
 
 function deleteFile (id) {
   Api.delete(`/files/${id}`).then((response) => {
     toastMessage.success(response.message)
     getFiles()
   }).catch((error) => {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   })
 }
 
@@ -74,7 +105,7 @@ onMounted(async () => {
               <small
                 class="text-gray-500 dark:text-gray-400"
                 :title="file.createdAt"
-              >{{ file.createdAt }}</small>
+              >{{ file.createdOn }}</small>
             </td>
             <td class="actions-cell">
               <jb-buttons
@@ -103,6 +134,15 @@ onMounted(async () => {
             </td>
           </tr>
         </data-table>
+        <FPagination
+          :totalNumberOfPages="paginationData.last_page"
+          :currentPage="currentPage"
+          @go-to-first-page="goToFirstPage"
+          @go-to-last-page="goToLastPage"
+          @go-to-next-page="goToNextPage"
+          @go-to-previous-page="goToPreviousPage"
+          @go-to-current-page="goToCurrentPage"
+        />
       </card-component>
     </main-section>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import MainSection from '@/components/MainSection.vue'
 // import Notification from '@/components/Notification.vue'
 import DataTable from '@/components/DataTable.vue'
@@ -9,6 +9,7 @@ import ModalBox from '@/components/ModalBox.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import JbButton from '@/components/JbButton.vue'
 import { mdiTrashCan, mdiEye, mdiPencil, mdiMessage, mdiAttachment } from '@mdi/js'
+import FPagination from '@/components/FPagination.vue'
 import { useToast } from 'vue-toastification'
 import { useRouter } from 'vue-router'
 const tableHead = [
@@ -26,16 +27,46 @@ const toastMessage = useToast()
 const isModalDangerActive = ref(false)
 
 const memoId = ref('')
+const paginationData = ref({})
+
+const params = reactive({
+  page: 1,
+  limit: 100
+})
+
+const currentPage = ref(1)
 
 async function getSelfMemos () {
   try {
-    const response = await Api.get('/memos/self')
-    memos.value = response
+    const { data, meta } = await Api.get('/memos/self', {
+      params
+    })
+    memos.value = data
+    paginationData.value = meta
   } catch (error) {
     toastMessage.error(error.detail)
   }
 }
-
+async function goToNextPage() {
+  params.page++
+  await getSelfMemos()
+}
+async function goToPreviousPage() {
+  params.page--
+  await getSelfMemos()
+}
+async function goToCurrentPage(page) {
+  params.page = page
+  await getSelfMemos()
+}
+async function goToFirstPage() {
+  params.page = paginationData.value.first_page
+  await getSelfMemos()
+}
+async function goToLastPage() {
+  params.page = paginationData.value.last_page
+  await getSelfMemos()
+}
 function deleteMemo (id) {
   Api.delete(`/memos/${id}`).then((response) => {
     toastMessage.success(response.message)
@@ -109,6 +140,15 @@ onMounted(async () => {
             </td>
           </tr>
         </data-table>
+        <FPagination
+          :totalNumberOfPages="paginationData.last_page"
+          :currentPage="currentPage"
+          @go-to-first-page="goToFirstPage"
+          @go-to-last-page="goToLastPage"
+          @go-to-next-page="goToNextPage"
+          @go-to-previous-page="goToPreviousPage"
+          @go-to-current-page="goToCurrentPage"
+        />
       </card-component>
     </main-section>
     <modal-box

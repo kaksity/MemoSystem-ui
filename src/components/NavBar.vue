@@ -110,10 +110,11 @@ const menuOpenLg = () => {
           <nav-bar-item-label :label="userName" />
 
           <template #dropdown>
-            <nav-bar-item>
+            <nav-bar-item to="/settings/change-password">
               <nav-bar-item-label
                 :icon="mdiAccount"
-                label="My Profile"
+                label="Change Password"
+                
               />
             </nav-bar-item>
             <divider nav-bar />

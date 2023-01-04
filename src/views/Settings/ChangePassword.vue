@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue'
 import { mdiBallot } from '@mdi/js'
 import MainSection from '@/components/MainSection.vue'
 import CardComponent from '@/components/CardComponent.vue'
@@ -10,70 +10,82 @@ import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
-import { groupErrors } from '@/helpers';
+import { groupErrors } from '@/helpers'
+const selectOptions = ref([])
 
 const toastMessage = useToast()
 
-const form = reactive({
-  name: '',
-  code: '',
-  description: ''
-})
 const errors = ref([])
 
-function clearInputs () {
-  form.name = ''
-  form.code = ''
-  form.description = ''
-}
+const form = reactive({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+})
 
-function clearError() {
+function clearError () {
   errors.value = {}
 }
 
-async function submit () {
-  try {
-    clearError()
-    const response = await Api.post('/files', form)
+function clearInputs () {
+  form.oldPassword = ''
+  form.newPassword = ''
+  form.confirmPassword = ''
+}
+
+const submit = () => {
+  clearError()
+  const requestBody = {
+    oldPassword: form.oldPassword,
+    newPassword: form.newPassword,
+    confirmPassword: form.confirmPassword
+  }
+  Api.post('/auth/change-password', requestBody).then((response) => {
     toastMessage.success(response.message)
     clearInputs()
-  } catch (error) {
-    if(error.errors) {
+  }).catch((error) => {
+    if (error.errors) {
       errors.value = groupErrors(error.errors, 'field')
     } else {
       toastMessage.error(error.detail)
     }
-  }
+  })
 }
 </script>
 <template>
   <div>
     <main-section>
       <card-component
-        title="Create File"
+        title="Change Passowrd"
         :icon="mdiBallot"
         form
         @submit.prevent="submit"
       >
-        <field label="File Name" :help="errors.name">
-          <control
-            v-model="form.name"
-          />
-        </field>
-        <divider />
-        <field label="File Number" :help="errors.code">
-          <control
-            v-model="form.code"
-          />
-        </field>
-        <divider />
         <field
-          label="File Description" :help="errors.description"
+          label="Old Password"
+          :help="errors.oldPassword"
         >
           <control
-            v-model="form.description"
-            row="3"
-            type="textarea"
+            v-model="form.oldPassword"
+            type="password"
+          />
+        </field>
+        <field
+          label="New Password"
+          :help="errors.newPassword"
+        >
+          <control
+            v-model="form.newPassword"
+            type="password"
+          />
+        </field>
+        <field
+          label="Confirm Password"
+          :help="errors.confirmPassword"
+        >
+          <control
+            v-model="form.confirmPassword"
+            type="password"
           />
         </field>
         <divider />
@@ -81,7 +93,7 @@ async function submit () {
           <jb-button
             type="submit"
             color="info"
-            label="Send"
+            label="Submit"
           />
         </jb-buttons>
       </card-component>
