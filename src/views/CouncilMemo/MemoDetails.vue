@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { mdiEye, mdiBallot } from '@mdi/js'
+import { mdiBallot } from '@mdi/js'
 import MainSection from '@/components/MainSection.vue'
 import CardComponent from '@/components/CardComponent.vue'
 import Field from '@/components/Field.vue'
@@ -8,41 +8,26 @@ import Divider from '@/components/Divider.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
 import { useRoute } from 'vue-router'
-import JbButtons from '@/components/JbButtons.vue'
-import JbButton from '@/components/JbButton.vue'
 
 const routes = useRoute()
 const memo = ref({})
 const recipients = ref([])
-const attachments = ref([])
-const toastMessage = useToast()
 
-const memoId = ref(routes.params.memoId)
+const toastMessage = useToast()
 
 async function getMemoDetails (memoId) {
   try {
-    const { data } = await Api.get(`/memos/${memoId}`)
-    memo.value = data
-    recipients.value = data.recipients
+    const response = await Api.get(`/memos/${memoId}`)
+    memo.value = response
+    recipients.value = []
+    document.getElementById('memoContent').innerHTML = memo.value.content
   } catch (error) {
-    toastMessage.error(error.message)
+    toastMessage.error(error.detail)
   }
 }
-function viewMemoAttachment (url) {
-  window.open(url)
-}
-async function getMemoAttachments (memoId) {
-  try {
-    const { data } = await Api.get(`/memos/${memoId}/attachments`)
-    attachments.value = data
-  } catch (error) {
-    toastMessage.error(error.message)
-  }
-}
-
 onMounted(async () => {
-  await getMemoDetails(memoId.value)
-  await getMemoAttachments(memoId.value)
+  const memoId = routes.params.memoId
+  await getMemoDetails(memoId)
 })
 
 </script>
@@ -74,20 +59,8 @@ onMounted(async () => {
           {{ memo.date }}
         </field>
         <divider />
-        <field label="Attached Files">
-          <div
-            v-for="attachment in attachments"
-            :key="attachment.id"
-          >
-            <jb-buttons class="justify-start lg:justify-center">
-              <jb-button
-                color="info"
-                :icon="mdiEye"
-                label="View Attachment"
-                @click="viewMemoAttachment(attachment.url)"
-              />
-            </jb-buttons>
-          </div>
+        <field label="Memo Content">
+          <div id="memoContent" />
         </field>
         <divider />
       </card-component>

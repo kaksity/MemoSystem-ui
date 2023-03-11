@@ -51,6 +51,28 @@ export default [
       ]
     },
     {
+      label: 'Council Memos',
+      subLabel: 'Submenus Example',
+      icon: mdiViewList,
+      menu: [
+        {
+          label: 'Create',
+          to: '/council/memo/create',
+          icon: mdiPlus
+        },
+        {
+          label: 'View (Self)',
+          to: '/council/memo/view/self',
+          icon: mdiEye
+        },
+        {
+          label: 'View (Mentioned)',
+          to: '/council/memo/view/mentioned',
+          icon: mdiEye
+        }
+      ]
+    },
+    {
       label: 'Memos',
       subLabel: 'Submenus Example',
       icon: mdiViewList,

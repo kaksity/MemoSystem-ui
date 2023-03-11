@@ -28,16 +28,16 @@ const userId = ref('')
 
 async function getUsers () {
   try {
-    const response = await Api.get('/users')
-    users.value = response
+    const { data } = await Api.get('/users')
+    users.value = data
   } catch (error) {
     toastMessage.error(error.message)
   }
 }
 
 function deleteUser (id) {
-  Api.delete(`/users/${id}`).then((response) => {
-    toastMessage.success(response.message)
+  Api.delete(`/users/${id}`).then(({ message }) => {
+    toastMessage.success(message)
     getUsers()
   }).catch((error) => {
     toastMessage.error(error.detail)

@@ -38,7 +38,6 @@ async function uploadAttachment () {
     const { message } = await Api.post(`/memos/${memoId.value}/attachments`, uploadForm)
     await getMemoAttachments(message)
     toastMessage.success(message)
-    await getMemoAttachments(memoId.value)
   } catch (error) {
     toastMessage.error(error.message)
   }

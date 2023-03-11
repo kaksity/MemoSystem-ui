@@ -32,23 +32,23 @@ const params = reactive({
 })
 const currentPage = ref(1)
 
-async function goToNextPage() {
+async function goToNextPage () {
   params.page++
   await getMentionedMessages()
 }
-async function goToPreviousPage() {
+async function goToPreviousPage () {
   params.page--
   await getMentionedMessages()
 }
-async function goToCurrentPage(page) {
+async function goToCurrentPage (page) {
   params.page = page
   await getMentionedMessages()
 }
-async function goToFirstPage() {
+async function goToFirstPage () {
   params.page = paginationData.value.first_page
   await getMentionedMessages()
 }
-async function goToLastPage() {
+async function goToLastPage () {
   params.page = paginationData.value.last_page
   await getMentionedMessages()
 }
@@ -107,8 +107,8 @@ onMounted(async () => {
           </tr>
         </data-table>
         <FPagination
-          :totalNumberOfPages="paginationData.last_page"
-          :currentPage="currentPage"
+          :total-number-of-pages="paginationData.last_page"
+          :current-page="currentPage"
           @go-to-first-page="goToFirstPage"
           @go-to-last-page="goToLastPage"
           @go-to-next-page="goToNextPage"

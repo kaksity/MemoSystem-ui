@@ -13,7 +13,7 @@ import JbButton from '@/components/JbButton.vue'
 import { mdiEye, mdiTrashCan, mdiBallot } from '@mdi/js'
 import { useToast } from 'vue-toastification'
 import { useRoute } from 'vue-router'
-import { groupErrors } from '@/helpers';
+import { groupErrors } from '@/helpers'
 
 const routes = useRoute()
 
@@ -38,8 +38,8 @@ const form = reactive({
 
 async function getFileDocuments (fileId) {
   try {
-    const response = await Api.get(`/files/${fileId}/documents`)
-    fileDocuments.value = response
+    const { data } = await Api.get(`/files/${fileId}/documents`)
+    fileDocuments.value = data
   } catch (error) {
     toastMessage.error(error.message)
   }
@@ -53,24 +53,23 @@ function clearInputs () {
   form.name = ''
   form.file = null
 }
-function clearErrors() {
+function clearErrors () {
   errors.value = {}
 }
 async function submit () {
   try {
-    
     clearErrors()
-    if (form.file[0]) {
-      return 
+    if (!form.file) {
+      return
     }
     const uploadForm = new FormData()
 
     uploadForm.append('name', form.name)
     uploadForm.append('file', form.file[0] == null ? null : form.file[0])
 
-    const response = await Api.post(`/files/${fileId.value}/documents`, uploadForm)
+    const { message } = await Api.post(`/files/${fileId.value}/documents`, uploadForm)
 
-    toastMessage.success(response.message)
+    toastMessage.success(message)
     await getFileDocuments(fileId.value)
     clearInputs()
   } catch (error) {
@@ -109,14 +108,20 @@ onMounted(async () => {
         form
         @submit.prevent="submit"
       >
-        <field label="Document Name" :help="errors.name">
+        <field
+          label="Document Name"
+          :help="errors.name"
+        >
           <control
             v-model="form.name"
             placeholder="Enter the name of document"
           />
         </field>
         <divider />
-        <field label="Document" :help="errors.file">
+        <field
+          label="Document"
+          :help="errors.file"
+        >
           <control
             type="file"
             placeholder="Enter the name of document"
@@ -153,8 +158,8 @@ onMounted(async () => {
             <td data-label="Created On">
               <small
                 class="text-gray-500 dark:text-gray-400"
-                :title="document.createdAt"
-              >{{ document.createdAt }}</small>
+                :title="document.created_on"
+              >{{ document.created_on }}</small>
             </td>
             <td class="actions-cell">
               <jb-buttons

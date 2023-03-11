@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { mdiBallot } from '@mdi/js'
 import MainSection from '@/components/MainSection.vue'
 import CardComponent from '@/components/CardComponent.vue'
@@ -11,7 +11,6 @@ import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
 import { groupErrors } from '@/helpers'
-const selectOptions = ref([])
 
 const toastMessage = useToast()
 
@@ -20,7 +19,7 @@ const errors = ref([])
 const form = reactive({
   oldPassword: '',
   newPassword: '',
-  confirmPassword: '',
+  confirmPassword: ''
 })
 
 function clearError () {

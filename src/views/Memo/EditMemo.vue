@@ -11,7 +11,7 @@ import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
 import { useRoute } from 'vue-router'
-import { groupErrors } from '@/helpers';
+import { groupErrors } from '@/helpers'
 
 // const recipients = ref([])
 const routes = useRoute()
@@ -33,33 +33,23 @@ const form = reactive({
 
 async function getMemoDetails (memoId) {
   try {
-    const response = await Api.get(`/memos/${memoId}`)
+    const { data } = await Api.get(`/memos/${memoId}`)
 
-    form.title = response.title
-    form.date = response.date
-    form.content = response.content
+    form.title = data.title
+    form.date = data.date
+    form.content = data.content
     editor.value.setHTML(form.content)
 
-    response.recipients.forEach(recipient => {
+    data.recipients.forEach(recipient => {
       selectedRecipients.value.push(recipient.id)
       displayedRecipients.value.push({
         id: recipient.id,
         name: recipient.fullName
       })
     })
-
   } catch (error) {
     toastMessage.error(error.message)
   }
-}
-
-function clearInputs () {
-  selectedRecipients.value = []
-  displayedRecipients.value = []
-  form.content = ''
-  form.date = new Date().toString()
-  form.title = ''
-  editor.value.setHTML(form.content)
 }
 
 onMounted(async () => {
@@ -81,10 +71,10 @@ function removeSelectedRecipients (id) {
   selectedRecipients.value = deleteElementFromArray(selectedRecipients.value, id)
   displayedRecipients.value = deleteElementFromArray(displayedRecipients.value, id)
 }
-function deleteElementFromArray(array, key) {
+function deleteElementFromArray (array, key) {
   const newArray = []
   array.forEach(element => {
-    if((element !== key) && (element.id !== key)) {
+    if ((element !== key) && (element.id !== key)) {
       newArray.push(element)
     }
   })
@@ -93,8 +83,8 @@ function deleteElementFromArray(array, key) {
 
 async function getUsers () {
   try {
-    const response = await Api.get('/users')
-    response.forEach(element => {
+    const { data } = await Api.get('/users')
+    data.forEach(element => {
       recipients.value.push({
         id: element.id,
         label: element.fullName
@@ -104,18 +94,26 @@ async function getUsers () {
     toastMessage.error(error.detail)
   }
 }
-async function clearErrors() {
+
+function processDateTime (input) {
+  return new Date(input).toISOString().split('T')[0]
+}
+
+async function clearErrors () {
   errors.value = {}
 }
 const submit = async () => {
   try {
     clearErrors()
-    form.recipients = selectedRecipients
-    const response = await Api.put(`/memos/${memoId.value}`, form)
+    const response = await Api.put(`/memos/${memoId.value}`, {
+      recipients: selectedRecipients.value,
+      content: form.content,
+      title: form.title,
+      date: processDateTime(form.date)
+    })
     toastMessage.success(response.message)
-    clearInputs()
   } catch (error) {
-    if(error.errors) {
+    if (error.errors) {
       errors.value = groupErrors(error.errors, 'field')
     } else {
       toastMessage.error(error.detail)
@@ -132,7 +130,10 @@ const submit = async () => {
         form
         @submit.prevent="submit"
       >
-        <field label="Recipient" :help="errors.recipients">
+        <field
+          label="Recipient"
+          :help="errors.recipients"
+        >
           <control
             v-model="recipientSelectBox"
             :options="recipients"
@@ -155,13 +156,19 @@ const submit = async () => {
           </span>
         </div>
         <divider />
-        <field label="Memo Title" :help="errors.title">
+        <field
+          label="Memo Title"
+          :help="errors.title"
+        >
           <control
             v-model="form.title"
           />
         </field>
         <divider />
-        <field label="Date" :help="errors.date">
+        <field
+          label="Date"
+          :help="errors.date"
+        >
           <datepicker
             v-model="form.date"
             auto-apply
@@ -169,7 +176,10 @@ const submit = async () => {
           />
         </field>
         <divider />
-        <field label="Memo Content" :help="errors.content">
+        <field
+          label="Memo Content"
+          :help="errors.content"
+        >
           <QuillEditor
             ref="editor"
             v-model:content="form.content"

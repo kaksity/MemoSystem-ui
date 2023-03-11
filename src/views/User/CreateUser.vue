@@ -37,8 +37,8 @@ function clearInputs () {
 
 async function getRoles () {
   try {
-    const response = await Api.get('/roles')
-    selectOptions.value = response.map(({ id, name: label }) => {
+    const { data } = await Api.get('/roles')
+    selectOptions.value = data.map(({ id, name: label }) => {
       return {
         id,
         label
@@ -55,14 +55,8 @@ onMounted(async () => {
 
 const submit = () => {
   clearError()
-  const requestBody = {
-    fullName: form.fullName,
-    username: form.username,
-    roleId: form.roleId.id,
-    password: form.password
-  }
-  Api.post('/users', { ...form, roleId: form.roleId.id}).then((response) => {
-    toastMessage.success(response.message)
+  Api.post('/users', { ...form, roleId: form.roleId.id }).then(({ message }) => {
+    toastMessage.success(message)
     clearInputs()
   }).catch((error) => {
     if (error.errors) {

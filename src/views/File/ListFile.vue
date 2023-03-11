@@ -36,25 +36,25 @@ async function getFiles () {
     toastMessage.error(error.detail)
   }
 }
-async function goToNextPage() {
+async function goToNextPage () {
   params.page++
-  await getSelfMemos()
+  await getFiles()
 }
-async function goToPreviousPage() {
+async function goToPreviousPage () {
   params.page--
-  await getSelfMemos()
+  await getFiles()
 }
-async function goToCurrentPage(page) {
+async function goToCurrentPage (page) {
   params.page = page
-  await getSelfMemos()
+  await getFiles()
 }
-async function goToFirstPage() {
+async function goToFirstPage () {
   params.page = paginationData.value.first_page
-  await getSelfMemos()
+  await getFiles()
 }
-async function goToLastPage() {
+async function goToLastPage () {
   params.page = paginationData.value.last_page
-  await getSelfMemos()
+  await getFiles()
 }
 const paginationData = ref({})
 
@@ -64,7 +64,6 @@ const params = reactive({
 })
 
 const currentPage = ref(1)
-
 
 function deleteFile (id) {
   Api.delete(`/files/${id}`).then((response) => {
@@ -135,8 +134,8 @@ onMounted(async () => {
           </tr>
         </data-table>
         <FPagination
-          :totalNumberOfPages="paginationData.last_page"
-          :currentPage="currentPage"
+          :total-number-of-pages="paginationData.last_page"
+          :current-page="currentPage"
           @go-to-first-page="goToFirstPage"
           @go-to-last-page="goToLastPage"
           @go-to-next-page="goToNextPage"

@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref } from 'vue'
 import { mdiBallot } from '@mdi/js'
 import MainSection from '@/components/MainSection.vue'
 import CardComponent from '@/components/CardComponent.vue'
@@ -10,7 +10,7 @@ import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
-import { groupErrors } from '@/helpers';
+import { groupErrors } from '@/helpers'
 
 const toastMessage = useToast()
 
@@ -27,7 +27,7 @@ function clearInputs () {
   form.description = ''
 }
 
-function clearError() {
+function clearError () {
   errors.value = {}
 }
 
@@ -38,7 +38,7 @@ async function submit () {
     toastMessage.success(response.message)
     clearInputs()
   } catch (error) {
-    if(error.errors) {
+    if (error.errors) {
       errors.value = groupErrors(error.errors, 'field')
     } else {
       toastMessage.error(error.detail)
@@ -55,20 +55,27 @@ async function submit () {
         form
         @submit.prevent="submit"
       >
-        <field label="File Name" :help="errors.name">
+        <field
+          label="File Name"
+          :help="errors.name"
+        >
           <control
             v-model="form.name"
           />
         </field>
         <divider />
-        <field label="File Number" :help="errors.code">
+        <field
+          label="File Number"
+          :help="errors.code"
+        >
           <control
             v-model="form.code"
           />
         </field>
         <divider />
         <field
-          label="File Description" :help="errors.description"
+          label="File Description"
+          :help="errors.description"
         >
           <control
             v-model="form.description"

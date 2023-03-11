@@ -10,7 +10,7 @@ import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
-import { groupErrors } from '@/helpers';
+import { groupErrors } from '@/helpers'
 
 const recipients = ref([])
 const errors = ref({})
@@ -41,7 +41,6 @@ onMounted(async () => {
   await getUsers()
 })
 function setRecipient () {
-  
   const isExist = selectedRecipients.value.find(recipientId => recipientId === recipientSelectBox.value.id)
 
   if (!isExist) {
@@ -58,10 +57,10 @@ function removeSelectedRecipients (id) {
   displayedRecipients.value = deleteElementFromArray(displayedRecipients.value, id)
 }
 
-function deleteElementFromArray(array, key) {
+function deleteElementFromArray (array, key) {
   const newArray = []
   array.forEach(element => {
-    if((element !== key) && (element.id !== key)) {
+    if ((element !== key) && (element.id !== key)) {
       newArray.push(element)
     }
   })
@@ -70,8 +69,8 @@ function deleteElementFromArray(array, key) {
 
 async function getUsers () {
   try {
-    const response = await Api.get('/users')
-    response.forEach(element => {
+    const { data } = await Api.get('/users')
+    data.forEach(element => {
       recipients.value.push({
         id: element.id,
         label: element.fullName
@@ -81,21 +80,21 @@ async function getUsers () {
     toastMessage.error(error.message)
   }
 }
-function clearErrors() {
+function clearErrors () {
   errors.value = {}
 }
 const submit = async () => {
   try {
     clearErrors()
     form.recipients = selectedRecipients
-    const response = await Api.post('/messages', form)
-    toastMessage.success(response.message)
+    const { message } = await Api.post('/messages', form)
+    toastMessage.success(message)
     clearInputs()
   } catch (error) {
-    if(error.errors) {
+    if (error.errors) {
       errors.value = groupErrors(error.errors, 'field')
     } else {
-      toastMessage.error(error.detail)  
+      toastMessage.error(error.detail)
     }
   }
 }
@@ -109,7 +108,10 @@ const submit = async () => {
         form
         @submit.prevent="submit"
       >
-        <field label="Recipient" :help="errors.recipients">
+        <field
+          label="Recipient"
+          :help="errors.recipients"
+        >
           <control
             v-model="recipientSelectBox"
             :options="recipients"
@@ -132,13 +134,19 @@ const submit = async () => {
           </span>
         </div>
         <divider />
-        <field label="Message Title" :help="errors.title">
+        <field
+          label="Message Title"
+          :help="errors.title"
+        >
           <control
             v-model="form.title"
           />
         </field>
         <divider />
-        <field label="Message Content" :help="errors.content">
+        <field
+          label="Message Content"
+          :help="errors.content"
+        >
           <QuillEditor
             ref="editor"
             v-model:content="form.content"

@@ -17,8 +17,8 @@ const toastMessage = useToast()
 
 async function getMemoDetails (memoId) {
   try {
-    const response = await Api.get(`/memos/${memoId}`)
-    memo.value = response
+    const { data } = await Api.get(`/memos/${memoId}`)
+    memo.value = data
     recipients.value = []
     document.getElementById('memoContent').innerHTML = memo.value.content
   } catch (error) {

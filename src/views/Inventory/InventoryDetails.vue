@@ -11,7 +11,7 @@ import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
 import { useRoute } from 'vue-router'
-import { groupErrors } from '@/helpers';
+import { groupErrors } from '@/helpers'
 
 const toastMessage = useToast()
 const route = useRoute()
@@ -24,7 +24,7 @@ const form = reactive({
 const errors = ref([])
 async function getSingleInventory (id) {
   try {
-    const data  = await Api.get(`/inventories/${id}`)
+    const { data } = await Api.get(`/inventories/${id}`)
     form.article = data.article
     form.quantity = data.quantity
     form.code = data.code
@@ -32,7 +32,7 @@ async function getSingleInventory (id) {
     toastMessage.error(error.detail)
   }
 }
-function clearErrors() {
+function clearErrors () {
   errors.value = {}
 }
 async function submit () {
@@ -42,7 +42,7 @@ async function submit () {
     await getSingleInventory(route.params.inventoryId)
     toastMessage.success(response.message)
   } catch (error) {
-    if(error.errors) {
+    if (error.errors) {
       errors.value = groupErrors(error.errors, 'field')
     } else {
       toastMessage.error(error.detail)
@@ -63,13 +63,19 @@ onMounted(async () => {
         form
         @submit.prevent="submit"
       >
-        <field label="Inventory Article" :help="errors.article">
+        <field
+          label="Inventory Article"
+          :help="errors.article"
+        >
           <control
             v-model="form.article"
           />
         </field>
         <divider />
-        <field label="Inventory Code" :help="errors.code">
+        <field
+          label="Inventory Code"
+          :help="errors.code"
+        >
           <control
             v-model="form.code"
             disabled

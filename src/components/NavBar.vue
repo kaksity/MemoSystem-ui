@@ -114,7 +114,6 @@ const menuOpenLg = () => {
               <nav-bar-item-label
                 :icon="mdiAccount"
                 label="Change Password"
-                
               />
             </nav-bar-item>
             <divider nav-bar />

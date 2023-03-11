@@ -149,6 +149,78 @@ const routes = [
   },
   {
     meta: {
+      title: 'Create Council Memo',
+      requiresAuth: true
+    },
+    path: '/council/memo/create',
+    name: 'council-memo-create',
+    component: () => import('@/views/CouncilMemo/CreateMemo.vue')
+  },
+  {
+    meta: {
+      title: 'View Self Council Memo',
+      requiresAuth: true
+    },
+    path: '/council/memo/view/self',
+    name: 'council-memo-view-self',
+    component: () => import('@/views/CouncilMemo/ListOfSelfMemo.vue')
+  },
+  {
+    meta: {
+      title: 'View Mentioned Council Memo',
+      requiresAuth: true
+    },
+    path: '/memo/view/mentioned',
+    name: 'memo-view-mentioned',
+    component: () => import('@/views/CouncilMemo/ListOfMentionedMemo.vue')
+  },
+  {
+    meta: {
+      title: 'View Council Memo Details',
+      requiresAuth: true
+    },
+    path: '/council/memo/:memoId/view',
+    name: 'council-memo-view-details',
+    component: () => import('@/views/CouncilMemo/MemoDetails.vue')
+  },
+  {
+    meta: {
+      title: 'View Council Memo Attachments(Self)',
+      requiresAuth: true
+    },
+    path: '/council/memo/:memoId/attachments/self',
+    name: 'council-memo-attachment-self',
+    component: () => import('@/views/CouncilMemo/SelfMemoAttachments.vue')
+  },
+  {
+    meta: {
+      title: 'View Council Memo Attachments(Mentioned)',
+      requiresAuth: true
+    },
+    path: '/council/memo/:memoId/attachments/mentioned',
+    name: 'council-memo-attachment-mentioned',
+    component: () => import('@/views/CouncilMemo/MentionedMemoAttachments.vue')
+  },
+  {
+    meta: {
+      title: 'View Memo Comments',
+      requiresAuth: true
+    },
+    path: '/council/memo/:memoId/comments',
+    name: '/council/memo-view-comments',
+    component: () => import('@/views/CouncilMemo/MemoComments.vue')
+  },
+  {
+    meta: {
+      title: 'Edit Memo Details',
+      requiresAuth: true
+    },
+    path: '/council/memo/:memoId/edit',
+    name: 'council-memo-view-edit',
+    component: () => import('@/views/CouncilMemo/EditMemo.vue')
+  },
+  {
+    meta: {
       title: 'Create Message',
       requiresAuth: true
     },

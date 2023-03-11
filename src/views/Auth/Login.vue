@@ -32,8 +32,8 @@ function clearError () {
 const submit = () => {
   clearError()
 
-  httpClient.post('/auth/login', form).then((response) => {
-    store.dispatch('login', response)
+  httpClient.post('/auth/login', form).then(({ data }) => {
+    store.dispatch('login', data)
     toastMessage.success('User Logged In')
     router.push('/dashboard')
   }).catch((error) => {

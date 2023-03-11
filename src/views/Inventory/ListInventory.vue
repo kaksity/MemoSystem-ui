@@ -28,16 +28,16 @@ const inventoryId = ref('')
 
 async function getInventories () {
   try {
-    const response = await Api.get('/inventories')
-    inventories.value = response
+    const { data } = await Api.get('/inventories')
+    inventories.value = data
   } catch (error) {
     toastMessage.error(error.detail)
   }
 }
 
 function deleteInventory (id) {
-  Api.delete(`/inventories/${id}`).then((response) => {
-    toastMessage.success(response.message)
+  Api.delete(`/inventories/${id}`).then(({ message }) => {
+    toastMessage.success(message)
     getInventories()
   }).catch((error) => {
     toastMessage.error(error.detail)

@@ -10,7 +10,7 @@ import JbButton from '@/components/JbButton.vue'
 import JbButtons from '@/components/JbButtons.vue'
 import Api from '@/api'
 import { useToast } from 'vue-toastification'
-import { groupErrors } from '@/helpers';
+import { groupErrors } from '@/helpers'
 
 const toastMessage = useToast()
 
@@ -25,7 +25,7 @@ function clearInputs () {
   form.quantity = ''
   form.code = ''
 }
-function clearErrors() {
+function clearErrors () {
   errors.value = {}
 }
 async function submit () {
@@ -35,7 +35,7 @@ async function submit () {
     toastMessage.success(response.message)
     clearInputs()
   } catch (error) {
-    if(error.errors){
+    if (error.errors) {
       errors.value = groupErrors(error.errors, 'field')
     } else {
       toastMessage.error(error.detail)
@@ -52,13 +52,19 @@ async function submit () {
         form
         @submit.prevent="submit"
       >
-        <field label="Inventory Article" :help="errors.article">
+        <field
+          label="Inventory Article"
+          :help="errors.article"
+        >
           <control
             v-model="form.article"
           />
         </field>
         <divider />
-        <field label="Inventory Code" :help="errors.code">
+        <field
+          label="Inventory Code"
+          :help="errors.code"
+        >
           <control
             v-model="form.code"
           />

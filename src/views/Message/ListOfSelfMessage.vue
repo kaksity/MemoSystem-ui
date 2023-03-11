@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, reactive } from 'vue';
+import { ref, onMounted, reactive } from 'vue'
 import MainSection from '@/components/MainSection.vue'
 // import Notification from '@/components/Notification.vue'
 import DataTable from '@/components/DataTable.vue'
@@ -50,30 +50,30 @@ async function getSelfMessages () {
   }
 }
 
-async function goToNextPage() {
+async function goToNextPage () {
   params.page++
   await getSelfMessages()
 }
-async function goToPreviousPage() {
+async function goToPreviousPage () {
   params.page--
   await getSelfMessages()
 }
-async function goToCurrentPage(page) {
+async function goToCurrentPage (page) {
   params.page = page
   await getSelfMessages()
 }
-async function goToFirstPage() {
+async function goToFirstPage () {
   params.page = paginationData.value.first_page
   await getSelfMessages()
 }
-async function goToLastPage() {
+async function goToLastPage () {
   params.page = paginationData.value.last_page
   await getSelfMessages()
 }
 
 function deleteMessage (id) {
-  Api.delete(`/messages/${id}`).then((response) => {
-    toastMessage.success(response.message)
+  Api.delete(`/messages/${id}`).then(({ message }) => {
+    toastMessage.success(message)
     getSelfMessages()
   }).catch((error) => {
     toastMessage.error(error.detail)
@@ -131,8 +131,8 @@ onMounted(async () => {
           </tr>
         </data-table>
         <FPagination
-          :totalNumberOfPages="paginationData.last_page"
-          :currentPage="currentPage"
+          :total-number-of-pages="paginationData.last_page"
+          :current-page="currentPage"
           @go-to-first-page="goToFirstPage"
           @go-to-last-page="goToLastPage"
           @go-to-next-page="goToNextPage"

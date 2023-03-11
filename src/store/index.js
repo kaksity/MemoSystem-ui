@@ -68,7 +68,7 @@ export default createStore({
 
     /* User */
     user (state, payload) {
-      const { user, token } = payload
+      const { user } = payload
       if (user) {
         state.userName = payload.user.fullName
         state.userRole = payload.user.role.code
@@ -93,16 +93,17 @@ export default createStore({
       }
     },
     isUserLoggedIn (state) {
-      return (state.userLoginToken === null || state.userTokenExpires === null) ? false : true
+      return !((state.userLoginToken === null || state.userTokenExpires === null))
     },
     isAdmin (state) {
-      return (state.userRole !== 'system-admin') ? false : true
+      return state.userRole === 'system-admin'
     }
   },
   actions: {
     login ({ commit }, payload) {
       // commit it to the local storage
       const { access_token: accessToken, user } = payload
+      console.log(payload)
       localStorage.setItem('memo-system-full-name', user.fullName)
       localStorage.setItem('memo-system-token', JSON.stringify(accessToken))
       commit('user', { token: accessToken, user })
